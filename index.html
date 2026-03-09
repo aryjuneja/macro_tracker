@@ -1,1039 +1,551 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Tracker</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-in {
-            animation: fadeIn 0.4s ease-out;
-        }
-        .card-shadow {
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        }
-        .card-shadow-lg {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>NutriTrack</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#09090b">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#09090b;--card:#18181b;--card2:#1f1f23;--border:#27272a;--border2:#3f3f46;
+  --text:#fafafa;--text2:#a1a1aa;--text3:#71717a;--dim:#52525b;
+  --accent:#a78bfa;--accent2:#c4b5fd;--accent-dim:rgba(167,139,250,0.1);--accent-dim2:rgba(167,139,250,0.15);
+  --green:#6ee7b7;--green-dim:rgba(110,231,183,0.1);
+  --red:#fca5a5;--red-dim:rgba(252,165,165,0.08);
+  --blue:#93c5fd;--amber:#fcd34d;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:72px;-webkit-tap-highlight-color:transparent}
+input,select,button{font-family:inherit}
+input,select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;width:100%;outline:none;transition:border 0.2s}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--dim)}
+select{cursor:pointer;-webkit-appearance:none;appearance:none}
+button{cursor:pointer;border:none;font-weight:500;transition:opacity 0.15s}
+button:active{opacity:0.8}
+
+.hdr{padding:24px 20px 16px;display:flex;justify-content:space-between;align-items:center}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.hdr-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.hdr-btn svg{width:18px;height:18px}
+
+.wrap{padding:0 20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+.card-flat{background:transparent;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+
+.btn{border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;color:var(--bg);letter-spacing:-0.2px}
+.btn-accent{background:var(--accent)}
+.btn-green{background:var(--green);color:var(--bg)}
+.btn-ghost{background:var(--card);color:var(--text2);border:1px solid var(--border)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(252,165,165,0.15)}
+.btn-sm{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:400}
+
+.label{font-size:12px;color:var(--text3);margin-bottom:6px;display:block;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.row{display:flex;gap:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;background:rgba(9,9,11,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:10;padding:4px 0}
+.nav button{flex:1;padding:10px 0 8px;background:none;border:none;color:var(--dim);font-size:10px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;letter-spacing:0.3px;text-transform:uppercase;transition:color 0.2s}
+.nav button.active{color:var(--accent)}
+.nav button svg{width:20px;height:20px}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty p{font-size:14px;line-height:1.5}
+
+.food-item{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.food-item:last-child{border-bottom:none}
+.food-item .info{flex:1;min-width:0}
+.food-item .name{font-weight:500;font-size:14px;margin-bottom:3px}
+.food-item .meta{font-size:12px;color:var(--text3);line-height:1.4}
+.food-item .actions{display:flex;gap:6px;flex-shrink:0;margin-left:12px}
+
+.macro-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.macro-row:last-child{margin-bottom:0}
+.macro-label{font-size:12px;color:var(--text3);width:52px;flex-shrink:0;font-weight:500}
+.macro-track{flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
+.macro-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
+.macro-val{font-size:12px;font-weight:500;width:50px;text-align:right;flex-shrink:0}
+
+.search-list{max-height:220px;overflow-y:auto;border-radius:12px;border:1px solid var(--border);background:var(--card)}
+.search-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s}
+.search-item:last-child{border-bottom:none}
+.search-item:hover,.search-item.sel{background:var(--accent-dim)}
+.search-item.sel{border-left:2px solid var(--accent)}
+.search-item .sname{font-weight:500;font-size:14px;margin-bottom:2px}
+.search-item .smeta{font-size:11px;color:var(--text3)}
+
+.preview{background:var(--accent-dim);border:1px solid var(--accent-dim2);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text2)}
+.preview b{color:var(--text);font-weight:600}
+
+.config-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;margin:60px 20px;text-align:center}
+.config-box h2{margin-bottom:8px;font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.config-box p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
+.config-box input{margin-bottom:14px}
+
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--text);padding:10px 24px;border-radius:12px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.toast.show{opacity:1}
+
+.overlay{position:fixed;inset:0;background:rgba(9,9,11,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Date nav */
+.date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.date-nav .date-label{text-align:center}
+.date-nav .day{font-size:15px;font-weight:600}
+.date-nav .today-badge{font-size:10px;color:var(--accent);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.date-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.date-btn svg{width:16px;height:16px}
+
+/* Ring */
+.ring-section{display:flex;align-items:center;gap:24px;margin-bottom:4px}
+.ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-val{font-size:24px;font-weight:700;letter-spacing:-1px}
+.ring-sub{font-size:11px;color:var(--text3);margin-top:1px}
+
+/* Section titles */
+.section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:10px;padding-left:4px}
+
+/* Remove btn in entries */
+.remove-btn{background:transparent;color:var(--dim);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all 0.15s;flex-shrink:0}
+.remove-btn:hover{background:var(--red-dim);color:var(--red)}
+.remove-btn svg{width:14px;height:14px}
+</style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+<div id="overlay" class="overlay" style="display:none"><div class="spinner"></div></div>
 
-        // STARTER FOOD DATABASE - Edit this to change default foods for all users
-        const STARTER_FOODS = [
-            { name: "Fage Yogurt", calories: 80, protein: 16, fat: 0, carb: 5, dietryFiber: 0, saturatedFat: 0 },
-            { name: "Cheese Office", calories: 80, protein: 6, fat: 6, carb: 1, dietryFiber: 0, saturatedFat: 3 },
-            { name: "Bread", calories: 40, protein: 4, fat: 1.5, carb: 9, dietryFiber: 8, saturatedFat: 0 },
-            { name: "Guacamole", calories: 90, protein: 1, fat: 8, carb: 6, dietryFiber: 4, saturatedFat: 1 },
-            { name: "Tortilla", calories: 60, protein: 5, fat: 3.5, carb: 20, dietryFiber: 18, saturatedFat: 1.5 },
-            { name: "Paneer", calories: 90, protein: 7, fat: 7, carb: 1, dietryFiber: 0, saturatedFat: 4.5 },
-            { name: "Veggies", calories: 45, protein: 1, fat: 2.5, carb: 5, dietryFiber: 2, saturatedFat: 0 },
-            { name: "Broccli", calories: 25, protein: 0, fat: 0, carb: 5, dietryFiber: 3, saturatedFat: 0 },
-            { name: "Strawberry Pouc", calories: 40, protein: 0, fat: 0, carb: 9, dietryFiber: 2, saturatedFat: 0 },
-            { name: "Milk 1%", calories: 120, protein: 10, fat: 2.5, carb: 15, dietryFiber: 0, saturatedFat: 1.5 },
-            { name: "Milk 2%", calories: 140, protein: 10, fat: 5, carb: 14, dietryFiber: 9, saturatedFat: 3 },
-            { name: "Salsa", calories: 10, protein: 0, fat: 0, carb: 2, dietryFiber: 0, saturatedFat: 0 },
-            { name: "Biscuit", calories: 230, protein: 3, fat: 9, carb: 36, dietryFiber: 3, saturatedFat: 1.5 },
-            { name: "Bagel Plain", calories: 110, protein: 15, fat: 3, carb: 35, dietryFiber: 30, saturatedFat: 0 },
-            { name: "Bagel Everything", calories: 140, protein: 15, fat: 5, carb: 36, dietryFiber: 30, saturatedFat: 0.5 },
-            { name: "Cheese Home", calories: 60, protein: 7, fat: 3, carb: 0, dietryFiber: 0, saturatedFat: 2 },
-            { name: "Dal", calories: 350, protein: 25, fat: 1, carb: 60, dietryFiber: 25, saturatedFat: 0 },
-            { name: "cream cheese", calories: 80, protein: 0, fat: 7, carb: 2, dietryFiber: 0, saturatedFat: 6 },
-            { name: "Protein Bar", calories: 180, protein: 21, fat: 7, carb: 23, dietryFiber: 12, saturatedFat: 2.5 },
-            { name: "Sweetgreen", calories: 220, protein: 15, fat: 0, carb: 0, dietryFiber: 0, saturatedFat: 0 },
-            { name: "Pasta", calories: 190, protein: 10, fat: 1, carb: 38, dietryFiber: 5, saturatedFat: 0 },
-            { name: "pasta sauce", calories: 60, protein: 2, fat: 1, carb: 11, dietryFiber: 2, saturatedFat: 0 },
-            { name: "Marie Biscuits", calories: 150, protein: 3, fat: 4, carb: 25, dietryFiber: 9, saturatedFat: 2 },
-            { name: "Tofu", calories: 70, protein: 7, fat: 4, carb: 2, dietryFiber: 1, saturatedFat: 0.5 },
-            { name: "spinach", calories: 20, protein: 3, fat: 0, carb: 3, dietryFiber: 2, saturatedFat: 0 },
-            { name: "rice", calories: 160, protein: 4, fat: 0.5, carb: 36, dietryFiber: 0, saturatedFat: 0 },
-            { name: "spiring roll", calories: 170, protein: 5, fat: 5, carb: 26, dietryFiber: 3, saturatedFat: 0.5 }
-        ];
+<script>
+let API_URL = localStorage.getItem("nutritrack_api_url") || "";
+const GOALS_KEY = "nutritrack_goals";
+let goals = JSON.parse(localStorage.getItem(GOALS_KEY) || "null") || {calories:2000,protein:150,carbs:250,fat:65,fiber:30};
 
-        // Icons as inline SVG components
-        const Plus = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-        );
+let foods = [];
+let logEntries = [];
+let currentView = "daily";
+let selectedDate = todayStr();
 
-        const Trash2 = ({ size = 20 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                <line x1="10" y1="11" x2="10" y2="17"></line>
-                <line x1="14" y1="11" x2="14" y2="17"></line>
-            </svg>
-        );
+function todayStr(){ return new Date().toISOString().split("T")[0]; }
+function fmtDate(s){ const d=new Date(s+"T12:00:00"); return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}); }
+function normalizeDate(d){ return String(d).substring(0,10); }
+function getFood(id){ return foods.find(f=>f.id===id); }
+function dayEntries(date){ return logEntries.filter(e=>normalizeDate(e.date)===date); }
+function dayTotals(date){
+  const t={calories:0,protein:0,fat:0,carbs:0,fiber:0};
+  dayEntries(date).forEach(e=>{
+    const f=getFood(e.foodId); if(!f) return;
+    t.calories+=f.calories*e.qty; t.protein+=f.protein*e.qty;
+    t.fat+=f.fat*e.qty; t.carbs+=f.carbs*e.qty; t.fiber+=f.fiber*e.qty;
+  });
+  return t;
+}
 
-        const Edit2 = ({ size = 18 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-            </svg>
-        );
+// Icons as SVG
+const icons = {
+  chevL: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>`,
+  chevR: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>`,
+  settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>`,
+  apple: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C9.5 2 8 4 8 4s-4-.5-5 3c-1 3.5.5 7 3 10s4 4 6 4 3.5-1 6-4 4-6.5 3-10c-1-3.5-5-3-5-3s-1.5-2-4-2z"/><path d="M12 2c0 2-2 4-2 4"/></svg>`,
+  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  refresh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`,
+};
 
-        const Check = ({ size = 20 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        );
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 2000);
+}
+function showLoading(){ document.getElementById("overlay").style.display="flex"; }
+function hideLoading(){ document.getElementById("overlay").style.display="none"; }
 
-        const X = ({ size = 20 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        );
+async function api(action, params={}, body=null){
+  const url = new URL(API_URL);
+  url.searchParams.set("action", action);
+  Object.entries(params).forEach(([k,v])=> url.searchParams.set(k,v));
+  if(body) url.searchParams.set("payload", JSON.stringify(body));
+  const r = await fetch(url.toString(), { method: "GET", redirect: "follow" });
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
 
-        const Database = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-            </svg>
-        );
+async function loadAll(){
+  showLoading();
+  try{
+    const [fr, lr] = await Promise.all([api("getFoods"), api("getAllLog")]);
+    if(fr.foods) foods = fr.foods;
+    if(lr.entries) logEntries = lr.entries;
+  }catch(e){ toast("Failed to load data"); console.error(e); }
+  hideLoading(); render();
+}
 
-        const TrendingUp = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-            </svg>
-        );
+async function loadLogOnly(){
+  const r = await api("getAllLog");
+  if(r.entries) logEntries = r.entries;
+}
 
-        const History = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 3v5h5"></path>
-                <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
-                <path d="M12 7v5l4 2"></path>
-            </svg>
-        );
+function navigate(view){ currentView=view; render(); }
+function shiftDate(n){
+  const d=new Date(selectedDate+"T12:00:00"); d.setDate(d.getDate()+n);
+  selectedDate=d.toISOString().split("T")[0]; render();
+}
 
-        const RefreshCw = ({ size = 20 }) => (
-            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-        );
+// ---- RENDER ----
+function macroRow(label, val, max, color){
+  const pct=max>0?Math.min(val/max*100,100):0;
+  return `<div class="macro-row"><span class="macro-label">${label}</span><div class="macro-track"><div class="macro-fill" style="width:${pct}%;background:${color}"></div></div><span class="macro-val" style="color:${color}">${Math.round(val)}${label==="Cal"?"":"g"}</span></div>`;
+}
 
-        const Download = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-        );
+function render(){
+  const app=document.getElementById("app");
 
-        function MacroTracker() {
-            const [foodDatabase, setFoodDatabase] = useState([]);
-            const [allSessions, setAllSessions] = useState([]);
-            const [currentSessionId, setCurrentSessionId] = useState(null);
-            const [showAddFood, setShowAddFood] = useState(false);
-            const [showAddEntry, setShowAddEntry] = useState(false);
-            const [editingFood, setEditingFood] = useState(null);
-            const [view, setView] = useState('tracker');
-            const [loading, setLoading] = useState(true);
-            const [showNewSessionModal, setShowNewSessionModal] = useState(false);
-            const [newSessionName, setNewSessionName] = useState('');
+  if(!API_URL){
+    app.innerHTML=`
+      <div class="config-box">
+        <h2>NutriTrack</h2>
+        <p>Connect your Google Sheet to start tracking. Paste your Apps Script deployment URL below.</p>
+        <input id="apiInput" placeholder="https://script.google.com/macros/s/..." />
+        <button class="btn btn-accent" style="width:100%" onclick="saveApiUrl()">Connect</button>
+      </div>`;
+    return;
+  }
 
-            const [newFood, setNewFood] = useState({
-                name: '',
-                calories: '',
-                protein: '',
-                fat: '',
-                carb: '',
-                dietryFiber: '',
-                saturatedFat: ''
-            });
+  let navHtml=`<div class="nav">
+    <button class="${currentView==="daily"||currentView==="addEntry"?"active":""}" onclick="navigate('daily')">${icons.chart}<span>Daily</span></button>
+    <button class="${currentView==="foods"||currentView==="addFood"?"active":""}" onclick="navigate('foods')">${icons.apple}<span>Foods</span></button>
+    <button class="${currentView==="goals"?"active":""}" onclick="navigate('goals')">${icons.target}<span>Goals</span></button>
+  </div>`;
 
-            const [newEntry, setNewEntry] = useState({
-                foodId: '',
-                count: 1
-            });
+  let h=`<div class="hdr"><h1>NutriTrack</h1><button class="hdr-btn" onclick="navigate('settings')">${icons.settings}</button></div><div class="wrap">`;
 
-            useEffect(() => {
-                loadData();
-            }, []);
+  switch(currentView){
+    case "daily": h+=renderDaily(); break;
+    case "foods": h+=renderFoods(); break;
+    case "addFood": h+=renderFoodForm(); break;
+    case "addEntry": h+=renderEntryForm(); break;
+    case "goals": h+=renderGoals(); break;
+    case "settings": h+=renderSettings(); break;
+  }
+  h+=`</div>`;
+  app.innerHTML = h + navHtml;
 
-            const loadData = () => {
-                setLoading(true);
-                try {
-                    const dbData = localStorage.getItem('food-database');
-                    if (dbData) {
-                        setFoodDatabase(JSON.parse(dbData));
-                    } else {
-                        // First time user - load starter foods
-                        const starterFoods = STARTER_FOODS.map((food, index) => ({
-                            ...food,
-                            id: `starter-${Date.now()}-${index}`
-                        }));
-                        setFoodDatabase(starterFoods);
-                        saveDatabase(starterFoods);
-                    }
+  if(currentView === "addEntry"){
+    const si = document.getElementById("searchInput");
+    if(si && document._restoreFocus){
+      si.focus(); si.selectionStart = si.selectionEnd = si.value.length;
+      document._restoreFocus = false;
+    }
+  }
+}
 
-                    const sessionsData = localStorage.getItem('tracking-sessions');
-                    if (sessionsData) {
-                        const sessions = JSON.parse(sessionsData);
-                        setAllSessions(sessions);
-                        
-                        if (sessions.length > 0) {
-                            setCurrentSessionId(sessions[0].id);
-                        }
-                    } else {
-                        createNewSession('First Session', true);
-                    }
-                } catch (error) {
-                    console.log('No existing data, starting fresh');
-                    const starterFoods = STARTER_FOODS.map((food, index) => ({
-                        ...food,
-                        id: `starter-${Date.now()}-${index}`
-                    }));
-                    setFoodDatabase(starterFoods);
-                    saveDatabase(starterFoods);
-                    createNewSession('First Session', true);
-                }
-                setLoading(false);
-            };
+// ---- DAILY ----
+function renderDaily(){
+  const t=dayTotals(selectedDate);
+  const entries=dayEntries(selectedDate);
+  const isToday=selectedDate===todayStr();
+  const pct=goals.calories>0?Math.min(t.calories/goals.calories*100,100):0;
+  const over=t.calories>goals.calories;
+  const ringColor=over?"var(--red)":"var(--accent)";
+  const remaining=Math.max(0,goals.calories-t.calories);
 
-            const createNewSession = (name = '', skipModal = false) => {
-                const sessionName = name || newSessionName || `Session ${new Date().toLocaleString()}`;
-                const newSession = {
-                    id: Date.now().toString(),
-                    name: sessionName,
-                    date: new Date().toISOString(),
-                    log: []
-                };
+  let h=`
+    <div class="date-nav">
+      <button class="date-btn" onclick="shiftDate(-1)">${icons.chevL}</button>
+      <div class="date-label"><div class="day">${fmtDate(selectedDate)}</div>${isToday?'<div class="today-badge">Today</div>':''}</div>
+      <button class="date-btn" onclick="shiftDate(1)">${icons.chevR}</button>
+    </div>
 
-                const updatedSessions = [newSession, ...allSessions];
-                setAllSessions(updatedSessions);
-                setCurrentSessionId(newSession.id);
-                saveSessions(updatedSessions);
-                
-                if (!skipModal) {
-                    setShowNewSessionModal(false);
-                    setNewSessionName('');
-                }
-            };
+    <div class="card mb20">
+      <div class="ring-section">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 36 36" style="width:110px;height:110px;transform:rotate(-90deg)">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--card2)" stroke-width="2.5"/>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="${ringColor}" stroke-width="2.5" stroke-dasharray="${pct} 100" stroke-linecap="round" style="transition:stroke-dasharray 0.5s ease"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-val">${Math.round(t.calories)}</div>
+            <div class="ring-sub">${over?'over by '+Math.round(t.calories-goals.calories):Math.round(remaining)+' left'}</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          ${macroRow("Protein",t.protein,goals.protein,"var(--accent)")}
+          ${macroRow("Carbs",t.carbs,goals.carbs,"var(--green)")}
+          ${macroRow("Fat",t.fat,goals.fat,"var(--amber)")}
+          ${macroRow("Fiber",t.fiber,goals.fiber,"var(--blue)")}
+        </div>
+      </div>
+    </div>
 
-            const saveSessions = (sessions) => {
-                try {
-                    localStorage.setItem('tracking-sessions', JSON.stringify(sessions));
-                } catch (error) {
-                    console.error('Error saving sessions:', error);
-                }
-            };
+    <button class="btn btn-accent mb20" style="width:100%;padding:14px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="entrySearch='';entryFoodId='';entryQty='1';navigate('addEntry')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Food
+    </button>`;
 
-            const saveDatabase = (db) => {
-                try {
-                    localStorage.setItem('food-database', JSON.stringify(db));
-                } catch (error) {
-                    console.error('Error saving database:', error);
-                }
-            };
+  if(entries.length===0){
+    h+=`<div class="empty"><p>Nothing logged yet.<br>Tap above to start tracking.</p></div>`;
+  } else {
+    h+=`<div class="section-title">Today's log</div>`;
+    h+=`<div class="card" style="padding:0;overflow:hidden">`;
+    entries.forEach(e=>{
+      const f=getFood(e.foodId); if(!f) return;
+      const cal=Math.round(f.calories*e.qty);
+      h+=`<div class="food-item">
+        <div class="info">
+          <div class="name">${f.name}</div>
+          <div class="meta">${e.qty} serving${e.qty!==1?'s':''} · ${cal} kcal · ${Math.round(f.protein*e.qty)}g P · ${Math.round(f.fat*e.qty)}g F · ${Math.round(f.carbs*e.qty)}g C</div>
+        </div>
+        <button class="remove-btn" onclick="doDeleteLog('${e.id}')">${icons.x}</button>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  return h;
+}
 
-            const getCurrentSession = () => {
-                return allSessions.find(s => s.id === currentSessionId);
-            };
+async function doDeleteLog(id){
+  logEntries = logEntries.filter(e=>e.id!==id);
+  render(); toast("Removed");
+  try{ await api("deleteLogEntry",{id}); }catch(e){ console.error(e); }
+}
 
-            const updateCurrentSession = (updatedLog) => {
-                const updatedSessions = allSessions.map(s => 
-                    s.id === currentSessionId ? { ...s, log: updatedLog } : s
-                );
-                setAllSessions(updatedSessions);
-                saveSessions(updatedSessions);
-            };
+// ---- FOODS ----
+function renderFoods(){
+  let h=`<div style="display:flex;justify-content:space-between;align-items:center" class="mb20">
+    <div><h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px">Food Library</h2><p style="font-size:12px;color:var(--text3);margin-top:2px">${foods.length} item${foods.length!==1?'s':''}</p></div>
+    <button class="btn btn-accent" style="display:flex;align-items:center;gap:6px;padding:10px 16px" onclick="startAddFood()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
+  </div>`;
+  if(foods.length===0){
+    h+=`<div class="empty"><p>No foods yet.<br>Add items from nutrition labels.</p></div>`;
+  } else {
+    h+=`<div class="card" style="padding:0;overflow:hidden">`;
+    foods.forEach(f=>{
+      h+=`<div class="food-item">
+        <div class="info">
+          <div class="name">${f.name}</div>
+          <div class="meta">Per ${f.servingSize} ${f.servingUnit} · ${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g · Fiber ${f.fiber}g</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm" onclick="startEditFood('${f.id}')">Edit</button>
+          <button class="remove-btn" onclick="doDeleteFood('${f.id}')">${icons.x}</button>
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  return h;
+}
 
-            const deleteSession = (sessionId) => {
-                const updatedSessions = allSessions.filter(s => s.id !== sessionId);
-                setAllSessions(updatedSessions);
-                saveSessions(updatedSessions);
-                
-                if (sessionId === currentSessionId && updatedSessions.length > 0) {
-                    setCurrentSessionId(updatedSessions[0].id);
-                }
-            };
+let foodForm={name:"",servingSize:"",servingUnit:"g",calories:"",protein:"",fat:"",carbs:"",fiber:""};
+let editingFoodId=null;
 
-            const exportData = () => {
-                const data = {
-                    foodDatabase,
-                    sessions: allSessions
-                };
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `macro-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-            };
+function startAddFood(){
+  editingFoodId=null;
+  foodForm={name:"",servingSize:"",servingUnit:"g",calories:"",protein:"",fat:"",carbs:"",fiber:""};
+  navigate("addFood");
+}
+function startEditFood(id){
+  const f=getFood(id); editingFoodId=id;
+  foodForm={name:f.name,servingSize:String(f.servingSize),servingUnit:f.servingUnit,calories:String(f.calories),protein:String(f.protein),fat:String(f.fat),carbs:String(f.carbs),fiber:String(f.fiber)};
+  navigate("addFood");
+}
 
-            const exportFoodDatabase = () => {
-                const data = {
-                    foodDatabase: foodDatabase,
-                    libraryName: "My Food Library",
-                    exportDate: new Date().toISOString()
-                };
-                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `food-library-${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-            };
+function renderFoodForm(){
+  const title=editingFoodId?"Edit Food":"Add Food";
+  return `<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">${title}</h2>
+    <div class="card">
+      <div class="mb14"><label class="label">Name</label><input value="${esc(foodForm.name)}" placeholder="e.g. Greek Yogurt" oninput="foodForm.name=this.value"/></div>
+      <div class="row mb14">
+        <div style="flex:1"><label class="label">Serving size</label><input type="number" value="${esc(foodForm.servingSize)}" placeholder="100" oninput="foodForm.servingSize=this.value"/></div>
+        <div style="width:100px"><label class="label">Unit</label><select onchange="foodForm.servingUnit=this.value">
+          ${["g","ml","oz","cup","tbsp","tsp","piece","scoop","slice","serving"].map(u=>`<option value="${u}"${foodForm.servingUnit===u?" selected":""}>${u}</option>`).join("")}
+        </select></div>
+      </div>
+      <div class="grid2 mb14">
+        <div><label class="label">Calories</label><input type="number" value="${esc(foodForm.calories)}" placeholder="0" oninput="foodForm.calories=this.value"/></div>
+        <div><label class="label">Protein (g)</label><input type="number" value="${esc(foodForm.protein)}" placeholder="0" oninput="foodForm.protein=this.value"/></div>
+        <div><label class="label">Fat (g)</label><input type="number" value="${esc(foodForm.fat)}" placeholder="0" oninput="foodForm.fat=this.value"/></div>
+        <div><label class="label">Carbs (g)</label><input type="number" value="${esc(foodForm.carbs)}" placeholder="0" oninput="foodForm.carbs=this.value"/></div>
+        <div><label class="label">Fiber (g)</label><input type="number" value="${esc(foodForm.fiber)}" placeholder="0" oninput="foodForm.fiber=this.value"/></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-ghost" style="flex:1" onclick="navigate('foods')">Cancel</button>
+        <button class="btn btn-accent" style="flex:1" onclick="doSaveFood()">Save</button>
+      </div>
+    </div>`;
+}
 
-            const importData = () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        try {
-                            const data = JSON.parse(event.target.result);
-                            if (data.foodDatabase) {
-                                setFoodDatabase(data.foodDatabase);
-                                saveDatabase(data.foodDatabase);
-                            }
-                            if (data.sessions) {
-                                setAllSessions(data.sessions);
-                                saveSessions(data.sessions);
-                                if (data.sessions.length > 0) {
-                                    setCurrentSessionId(data.sessions[0].id);
-                                }
-                            }
-                            alert('Data imported successfully!');
-                        } catch (error) {
-                            alert('Error importing data. Please check the file.');
-                        }
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            };
+function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
-            const importFoodLibrary = () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        try {
-                            const data = JSON.parse(event.target.result);
-                            if (data.foodDatabase && Array.isArray(data.foodDatabase)) {
-                                // Add imported foods to existing database (avoid duplicates by name)
-                                const existingNames = new Set(foodDatabase.map(f => f.name.toLowerCase()));
-                                const newFoods = data.foodDatabase
-                                    .filter(f => !existingNames.has(f.name.toLowerCase()))
-                                    .map(food => ({
-                                        ...food,
-                                        id: `imported-${Date.now()}-${Math.random()}`
-                                    }));
-                                
-                                const updatedDb = [...foodDatabase, ...newFoods];
-                                setFoodDatabase(updatedDb);
-                                saveDatabase(updatedDb);
-                                alert(`Imported ${newFoods.length} new foods! (Duplicates skipped)`);
-                            } else {
-                                alert('Invalid food library format.');
-                            }
-                        } catch (error) {
-                            alert('Error importing food library. Please check the file.');
-                        }
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            };
+async function doSaveFood(){
+  if(!foodForm.name||!foodForm.servingSize||!foodForm.calories) return toast("Fill required fields");
+  const obj={name:foodForm.name.trim(),servingSize:parseFloat(foodForm.servingSize),servingUnit:foodForm.servingUnit,calories:parseFloat(foodForm.calories),protein:parseFloat(foodForm.protein)||0,fat:parseFloat(foodForm.fat)||0,carbs:parseFloat(foodForm.carbs)||0,fiber:parseFloat(foodForm.fiber)||0};
+  if(editingFoodId){
+    obj.id=editingFoodId;
+    const idx=foods.findIndex(f=>f.id===editingFoodId);
+    if(idx>=0) foods[idx]=obj;
+  } else {
+    obj.id="temp_"+Date.now();
+    foods.push(obj);
+  }
+  const wasEditing=!!editingFoodId;
+  editingFoodId=null; currentView="foods";
+  render(); toast(wasEditing?"Updated":"Added");
+  try{
+    if(wasEditing){ await api("updateFood",{},obj); }
+    else{ const r=await api("addFood",{},obj); if(r.id){ const f=foods.find(f=>f.id===obj.id); if(f) f.id=r.id; } }
+  }catch(e){ console.error(e); }
+}
 
-            const addFood = () => {
-                if (!newFood.name || !newFood.calories) return;
+async function doDeleteFood(id){
+  if(!confirm("Delete this food?")) return;
+  foods = foods.filter(f=>f.id!==id);
+  render(); toast("Deleted");
+  try{ await api("deleteFood",{id}); }catch(e){ console.error(e); }
+}
 
-                const food = {
-                    id: Date.now().toString(),
-                    name: newFood.name,
-                    calories: parseFloat(newFood.calories) || 0,
-                    protein: parseFloat(newFood.protein) || 0,
-                    fat: parseFloat(newFood.fat) || 0,
-                    carb: parseFloat(newFood.carb) || 0,
-                    dietryFiber: parseFloat(newFood.dietryFiber) || 0,
-                    saturatedFat: parseFloat(newFood.saturatedFat) || 0
-                };
+// ---- ADD ENTRY ----
+let entrySearch="", entryFoodId="", entryQty="1";
 
-                const updatedDb = [...foodDatabase, food];
-                setFoodDatabase(updatedDb);
-                saveDatabase(updatedDb);
+function renderEntryForm(){
+  const filtered=foods.filter(f=>f.name.toLowerCase().includes(entrySearch.toLowerCase()));
+  const sel=getFood(entryFoodId);
+  let h=`<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Log Food<span style="color:var(--text3);font-weight:400;font-size:14px;margin-left:8px">${fmtDate(selectedDate)}</span></h2>`;
+  if(foods.length===0){
+    return h+`<div class="card" style="text-align:center;padding:32px"><p style="color:var(--text3);margin-bottom:16px">Add foods to your library first.</p><button class="btn btn-accent" onclick="startAddFood()">Add Food</button></div>`;
+  }
 
-                setNewFood({
-                    name: '',
-                    calories: '',
-                    protein: '',
-                    fat: '',
-                    carb: '',
-                    dietryFiber: '',
-                    saturatedFat: ''
-                });
-                setShowAddFood(false);
-            };
+  h+=`<div class="mb14"><label class="label">Search</label><input id="searchInput" value="${esc(entrySearch)}" placeholder="Search your foods..." oninput="handleSearch(this.value)"/></div>
+    <div class="search-list mb14">`;
+  if(filtered.length===0){
+    h+=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No matches</div>`;
+  } else {
+    filtered.forEach(f=>{
+      h+=`<div class="search-item${entryFoodId===f.id?' sel':''}" onclick="selectEntryFood('${f.id}')"><div class="sname">${f.name}</div><div class="smeta">${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g per ${f.servingSize} ${f.servingUnit}</div></div>`;
+    });
+  }
+  h+=`</div>
+    <div class="mb14"><label class="label">Servings</label><input type="number" step="0.25" min="0.25" value="${entryQty}" oninput="entryQty=this.value;updatePreview()"/></div>
+    <div id="entryPreview" class="mb14">`;
+  if(sel){
+    const q=parseFloat(entryQty)||0;
+    h+=`<div class="preview"><b>Total:</b> ${Math.round(sel.calories*q)} kcal · P ${Math.round(sel.protein*q)}g · F ${Math.round(sel.fat*q)}g · C ${Math.round(sel.carbs*q)}g</div>`;
+  }
+  h+=`</div>
+    <div class="row">
+      <button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button>
+      <button class="btn btn-accent" style="flex:1;opacity:${entryFoodId?1:0.4}" onclick="doAddEntry()" ${entryFoodId?'':'disabled'}>Log Entry</button>
+    </div>`;
+  return h;
+}
 
-            const updateFood = () => {
-                if (!editingFood) return;
+function handleSearch(val){
+  entrySearch=val; entryFoodId="";
+  const filtered=foods.filter(f=>f.name.toLowerCase().includes(val.toLowerCase()));
+  const listEl=document.querySelector(".search-list");
+  if(!listEl) return;
+  let html="";
+  if(filtered.length===0){ html=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No matches</div>`; }
+  else { filtered.forEach(f=>{ html+=`<div class="search-item" onclick="selectEntryFood('${f.id}')"><div class="sname">${f.name}</div><div class="smeta">${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g per ${f.servingSize} ${f.servingUnit}</div></div>`; }); }
+  listEl.innerHTML=html;
+  const prev=document.getElementById("entryPreview"); if(prev) prev.innerHTML="";
+}
 
-                const updatedDb = foodDatabase.map(f => 
-                    f.id === editingFood.id ? editingFood : f
-                );
-                setFoodDatabase(updatedDb);
-                saveDatabase(updatedDb);
-                setEditingFood(null);
-            };
+function selectEntryFood(id){
+  entryFoodId=id;
+  const f=getFood(id); if(!f) return;
+  const si=document.getElementById("searchInput");
+  if(si) si.value=f.name;
+  entrySearch=f.name;
+  document.querySelectorAll(".search-item").forEach(el=>{
+    el.classList.remove("sel");
+    if(el.querySelector(".sname").textContent===f.name) el.classList.add("sel");
+  });
+  updatePreview();
+  const btn=document.querySelector(".btn-accent[onclick='doAddEntry()']");
+  if(btn){ btn.disabled=false; btn.style.opacity=1; }
+}
 
-            const deleteFood = (id) => {
-                const updatedDb = foodDatabase.filter(f => f.id !== id);
-                setFoodDatabase(updatedDb);
-                saveDatabase(updatedDb);
-            };
+function updatePreview(){
+  const f=getFood(entryFoodId);
+  const prev=document.getElementById("entryPreview");
+  if(!prev) return;
+  if(!f){ prev.innerHTML=""; return; }
+  const q=parseFloat(entryQty)||0;
+  prev.innerHTML=`<div class="preview"><b>Total:</b> ${Math.round(f.calories*q)} kcal · P ${Math.round(f.protein*q)}g · F ${Math.round(f.fat*q)}g · C ${Math.round(f.carbs*q)}g</div>`;
+}
 
-            const addEntry = () => {
-                if (!newEntry.foodId) return;
+async function doAddEntry(){
+  if(!entryFoodId) return;
+  const qty=parseFloat(entryQty)||1;
+  const time=new Date().toISOString();
+  const tempId="temp_"+Date.now();
+  const fId=entryFoodId;
+  logEntries.push({id:tempId, date:selectedDate, foodId:fId, qty, time});
+  entrySearch=""; entryFoodId=""; entryQty="1";
+  currentView="daily"; render(); toast("Logged!");
+  try{
+    const r=await api("addLogEntry",{},{date:selectedDate,foodId:fId,qty,time});
+    if(r.id){ const entry=logEntries.find(e=>e.id===tempId); if(entry) entry.id=r.id; }
+  }catch(e){ console.error(e); }
+}
 
-                const entry = {
-                    id: Date.now().toString(),
-                    foodId: newEntry.foodId,
-                    count: parseFloat(newEntry.count) || 1,
-                    timestamp: new Date().toISOString()
-                };
+// ---- GOALS ----
+let goalsForm={...goals};
 
-                const currentSession = getCurrentSession();
-                const updatedLog = [...(currentSession?.log || []), entry];
-                updateCurrentSession(updatedLog);
+function renderGoals(){
+  goalsForm={...goals};
+  let h=`<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Daily Goals</h2><div class="card">`;
+  [["calories","Calories (kcal)"],["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["fiber","Fiber (g)"]].forEach(([k,l])=>{
+    h+=`<div class="mb14"><label class="label">${l}</label><input type="number" value="${goalsForm[k]}" oninput="goalsForm.${k}=parseFloat(this.value)||0"/></div>`;
+  });
+  h+=`<div class="row"><button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button><button class="btn btn-accent" style="flex:1" onclick="doSaveGoals()">Save</button></div></div>`;
+  return h;
+}
 
-                setNewEntry({ foodId: '', count: 1 });
-                setShowAddEntry(false);
-            };
+function doSaveGoals(){
+  goals={...goalsForm};
+  localStorage.setItem(GOALS_KEY,JSON.stringify(goals));
+  toast("Goals saved"); navigate("daily");
+}
 
-            const deleteEntry = (id) => {
-                const currentSession = getCurrentSession();
-                const updatedLog = (currentSession?.log || []).filter(e => e.id !== id);
-                updateCurrentSession(updatedLog);
-            };
+// ---- SETTINGS ----
+function renderSettings(){
+  return `<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Settings</h2>
+    <div class="card mb14">
+      <div class="mb14"><label class="label">Apps Script URL</label><input id="settingsUrl" value="${esc(API_URL)}"/></div>
+      <div class="row">
+        <button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button>
+        <button class="btn btn-accent" style="flex:1" onclick="doUpdateUrl()">Save</button>
+      </div>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px" onclick="loadAll()">${icons.refresh} Reload from Sheet</button>`;
+}
 
-            const calculateTotals = (log) => {
-                const totals = {
-                    calories: 0,
-                    protein: 0,
-                    fat: 0,
-                    carb: 0,
-                    dietryFiber: 0,
-                    saturatedFat: 0
-                };
+function doUpdateUrl(){
+  const v=document.getElementById("settingsUrl").value.trim();
+  if(!v) return toast("URL required");
+  API_URL=v; localStorage.setItem("nutritrack_api_url",v);
+  toast("URL updated"); loadAll();
+}
 
-                (log || []).forEach(entry => {
-                    const food = foodDatabase.find(f => f.id === entry.foodId);
-                    if (food) {
-                        totals.calories += food.calories * entry.count;
-                        totals.protein += food.protein * entry.count;
-                        totals.fat += food.fat * entry.count;
-                        totals.carb += food.carb * entry.count;
-                        totals.dietryFiber += food.dietryFiber * entry.count;
-                        totals.saturatedFat += food.saturatedFat * entry.count;
-                    }
-                });
+function saveApiUrl(){
+  const v=document.getElementById("apiInput").value.trim();
+  if(!v) return toast("Paste your Apps Script URL");
+  API_URL=v; localStorage.setItem("nutritrack_api_url",v);
+  toast("Connected!"); loadAll();
+}
 
-                return totals;
-            };
-
-            const currentSession = getCurrentSession();
-            const totals = calculateTotals(currentSession?.log);
-
-            if (loading) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
-                        <div className="text-gray-600">Loading...</div>
-                    </div>
-                );
-            }
-
-            return (
-                <div className="min-h-screen p-4 pb-20">
-                    <div className="max-w-5xl mx-auto animate-in">
-                        {/* Clean professional header */}
-                        <div className="bg-white rounded-xl card-shadow-lg p-8 mb-6 border border-gray-100">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                                Macro Tracker
-                            </h1>
-                            <p className="text-gray-500 text-sm font-medium">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        </div>
-
-                        {/* Export/Import Section - clean and minimal */}
-                        <div className="bg-white rounded-xl card-shadow p-5 mb-6 border border-gray-100">
-                            <div className="grid grid-cols-2 gap-3 mb-3">
-                                <button
-                                    onClick={exportData}
-                                    className="bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-sm"
-                                >
-                                    📥 Export All Data
-                                </button>
-                                <button
-                                    onClick={importData}
-                                    className="bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-sm"
-                                >
-                                    📤 Import All Data
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    onClick={exportFoodDatabase}
-                                    className="border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-sm flex items-center justify-center gap-2"
-                                >
-                                    <Download />
-                                    Export Library
-                                </button>
-                                <button
-                                    onClick={importFoodLibrary}
-                                    className="border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-sm flex items-center justify-center gap-2"
-                                >
-                                    <Plus />
-                                    Import Library
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Navigation tabs - professional style */}
-                        <div className="flex gap-2 mb-6">
-                            <button
-                                onClick={() => setView('tracker')}
-                                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
-                                    view === 'tracker'
-                                        ? 'bg-gray-900 text-white card-shadow-lg'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50 card-shadow border border-gray-200'
-                                }`}
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <TrendingUp />
-                                    Tracker
-                                </span>
-                            </button>
-                            <button
-                                onClick={() => setView('history')}
-                                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
-                                    view === 'history'
-                                        ? 'bg-gray-900 text-white card-shadow-lg'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50 card-shadow border border-gray-200'
-                                }`}
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <History />
-                                    History
-                                </span>
-                            </button>
-                            <button
-                                onClick={() => setView('database')}
-                                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
-                                    view === 'database'
-                                        ? 'bg-gray-900 text-white card-shadow-lg'
-                                        : 'bg-white text-gray-600 hover:bg-gray-50 card-shadow border border-gray-200'
-                                }`}
-                            >
-                                <span className="inline-flex items-center gap-2">
-                                    <Database />
-                                    Database
-                                </span>
-                            </button>
-                        </div>
-
-                        {view === 'tracker' && (
-                            <>
-                                <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Current Session</label>
-                                            <select
-                                                value={currentSessionId || ''}
-                                                onChange={(e) => setCurrentSessionId(e.target.value)}
-                                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                            >
-                                                {allSessions.map(session => (
-                                                    <option key={session.id} value={session.id}>
-                                                        {session.name} - {new Date(session.date).toLocaleString()}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <button
-                                            onClick={() => setShowNewSessionModal(true)}
-                                            className="ml-4 bg-green-600 text-white p-3 rounded-xl hover:bg-green-700 transition-colors"
-                                            title="Start New Session"
-                                        >
-                                            <RefreshCw />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {showNewSessionModal && (
-                                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                                        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full">
-                                            <h3 className="text-xl font-bold text-gray-800 mb-4">Start New Session</h3>
-                                            <input
-                                                type="text"
-                                                placeholder="Session name (optional)"
-                                                value={newSessionName}
-                                                onChange={(e) => setNewSessionName(e.target.value)}
-                                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none mb-4"
-                                            />
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => createNewSession()}
-                                                    className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors"
-                                                >
-                                                    Create
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setShowNewSessionModal(false);
-                                                        setNewSessionName('');
-                                                    }}
-                                                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="glass rounded-3xl shadow-xl p-6 mb-6">
-                                    <h2 className="text-2xl font-black text-gray-800 mb-6 flex items-center gap-2">
-                                        <span className="text-3xl">💪</span>
-                                        Current Totals
-                                    </h2>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        <div className="bg-gradient-to-br from-red-500 to-pink-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Calories</div>
-                                            <div className="text-3xl font-black text-white">{totals.calories.toFixed(0)}</div>
-                                        </div>
-                                        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Protein</div>
-                                            <div className="text-3xl font-black text-white">{totals.protein.toFixed(1)}g</div>
-                                        </div>
-                                        <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Fat</div>
-                                            <div className="text-3xl font-black text-white">{totals.fat.toFixed(1)}g</div>
-                                        </div>
-                                        <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Carbs</div>
-                                            <div className="text-3xl font-black text-white">{totals.carb.toFixed(1)}g</div>
-                                        </div>
-                                        <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Fiber</div>
-                                            <div className="text-3xl font-black text-white">{totals.dietryFiber.toFixed(1)}g</div>
-                                        </div>
-                                        <div className="bg-gradient-to-br from-orange-500 to-red-600 p-5 rounded-2xl shadow-lg transform hover:scale-105 transition-transform">
-                                            <div className="text-sm text-white font-bold opacity-90">Sat Fat</div>
-                                            <div className="text-3xl font-black text-white">{totals.saturatedFat.toFixed(1)}g</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => setShowAddEntry(true)}
-                                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 rounded-2xl font-black shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 mb-6 flex items-center justify-center gap-3 text-lg glow"
-                                >
-                                    <Plus />
-                                    Log Food
-                                </button>
-
-                                {showAddEntry && (
-                                    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                                        <h3 className="text-lg font-bold text-gray-800 mb-4">Log Food Entry</h3>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Food</label>
-                                                <select
-                                                    value={newEntry.foodId}
-                                                    onChange={(e) => setNewEntry({ ...newEntry, foodId: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                >
-                                                    <option value="">Choose a food...</option>
-                                                    {foodDatabase.map(food => (
-                                                        <option key={food.id} value={food.id}>{food.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">Servings</label>
-                                                <input
-                                                    type="number"
-                                                    step="0.1"
-                                                    value={newEntry.count}
-                                                    onChange={(e) => setNewEntry({ ...newEntry, count: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={addEntry}
-                                                    className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <Check />
-                                                    Add
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowAddEntry(false)}
-                                                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <X />
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="bg-white rounded-2xl shadow-lg p-6">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-4">Current Log</h3>
-                                    {!currentSession?.log || currentSession.log.length === 0 ? (
-                                        <p className="text-gray-500 text-center py-8">No entries yet. Start logging!</p>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {currentSession.log.map(entry => {
-                                                const food = foodDatabase.find(f => f.id === entry.foodId);
-                                                if (!food) return null;
-                                                return (
-                                                    <div key={entry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                                                        <div>
-                                                            <div className="font-semibold text-gray-800">{food.name}</div>
-                                                            <div className="text-sm text-gray-600">
-                                                                {entry.count}x serving • {(food.calories * entry.count).toFixed(0)} cal
-                                                            </div>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => deleteEntry(entry.id)}
-                                                            className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                        >
-                                                            <Trash2 />
-                                                        </button>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            </>
-                        )}
-
-                        {view === 'history' && (
-                            <div className="bg-white rounded-2xl shadow-lg p-6">
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">All Sessions</h2>
-                                {allSessions.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">No sessions yet. Start tracking!</p>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {allSessions.map(session => {
-                                            const sessionTotals = calculateTotals(session.log);
-                                            return (
-                                                <div key={session.id} className="border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-colors">
-                                                    <div className="flex items-start justify-between mb-3">
-                                                        <div>
-                                                            <h3 className="font-bold text-gray-800">{session.name}</h3>
-                                                            <p className="text-sm text-gray-600">{new Date(session.date).toLocaleString()}</p>
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setCurrentSessionId(session.id);
-                                                                    setView('tracker');
-                                                                }}
-                                                                className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors text-sm font-semibold"
-                                                            >
-                                                                View
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    // Create CSV content
-                                                                    let csv = 'Food,Servings,Calories,Protein (g),Fat (g),Carbs (g),Fiber (g),Sat Fat (g)\n';
-                                                                    
-                                                                    session.log.forEach(entry => {
-                                                                        const food = foodDatabase.find(f => f.id === entry.foodId);
-                                                                        if (food) {
-                                                                            csv += `"${food.name}",${entry.count},${food.calories * entry.count},${food.protein * entry.count},${food.fat * entry.count},${food.carb * entry.count},${food.dietryFiber * entry.count},${food.saturatedFat * entry.count}\n`;
-                                                                        }
-                                                                    });
-                                                                    
-                                                                    // Add totals row
-                                                                    const totals = calculateTotals(session.log);
-                                                                    csv += `\nTOTALS,,${totals.calories.toFixed(1)},${totals.protein.toFixed(1)},${totals.fat.toFixed(1)},${totals.carb.toFixed(1)},${totals.dietryFiber.toFixed(1)},${totals.saturatedFat.toFixed(1)}\n`;
-                                                                    
-                                                                    // Download CSV
-                                                                    const blob = new Blob([csv], { type: 'text/csv' });
-                                                                    const url = URL.createObjectURL(blob);
-                                                                    const a = document.createElement('a');
-                                                                    a.href = url;
-                                                                    a.download = `${session.name.replace(/\s+/g, '-')}-${new Date(session.date).toISOString().split('T')[0]}.csv`;
-                                                                    a.click();
-                                                                    URL.revokeObjectURL(url);
-                                                                }}
-                                                                className="text-green-600 hover:bg-green-50 p-2 rounded-lg transition-colors text-sm font-semibold"
-                                                            >
-                                                                CSV
-                                                            </button>
-                                                            <button
-                                                                onClick={() => deleteSession(session.id)}
-                                                                className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div className="grid grid-cols-3 gap-2 text-sm">
-                                                        <div className="bg-red-50 p-2 rounded">
-                                                            <div className="text-xs text-red-600">Calories</div>
-                                                            <div className="font-bold text-red-700">{sessionTotals.calories.toFixed(0)}</div>
-                                                        </div>
-                                                        <div className="bg-blue-50 p-2 rounded">
-                                                            <div className="text-xs text-blue-600">Protein</div>
-                                                            <div className="font-bold text-blue-700">{sessionTotals.protein.toFixed(1)}g</div>
-                                                        </div>
-                                                        <div className="bg-yellow-50 p-2 rounded">
-                                                            <div className="text-xs text-yellow-600">Fat</div>
-                                                            <div className="font-bold text-yellow-700">{sessionTotals.fat.toFixed(1)}g</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-2 text-sm text-gray-600">
-                                                        {session.log?.length || 0} entries
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {view === 'database' && (
-                            <>
-                                <button
-                                    onClick={() => setShowAddFood(true)}
-                                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all mb-6 flex items-center justify-center gap-2"
-                                >
-                                    <Plus />
-                                    Add New Food
-                                </button>
-
-                                {showAddFood && (
-                                    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                                        <h3 className="text-lg font-bold text-gray-800 mb-4">Add New Food</h3>
-                                        <div className="space-y-4">
-                                            <input
-                                                type="text"
-                                                placeholder="Food Name"
-                                                value={newFood.name}
-                                                onChange={(e) => setNewFood({ ...newFood, name: e.target.value })}
-                                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                            />
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Calories"
-                                                    value={newFood.calories}
-                                                    onChange={(e) => setNewFood({ ...newFood, calories: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Protein (g)"
-                                                    value={newFood.protein}
-                                                    onChange={(e) => setNewFood({ ...newFood, protein: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Fat (g)"
-                                                    value={newFood.fat}
-                                                    onChange={(e) => setNewFood({ ...newFood, fat: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Carbs (g)"
-                                                    value={newFood.carb}
-                                                    onChange={(e) => setNewFood({ ...newFood, carb: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Fiber (g)"
-                                                    value={newFood.dietryFiber}
-                                                    onChange={(e) => setNewFood({ ...newFood, dietryFiber: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                                <input
-                                                    type="number"
-                                                    placeholder="Sat Fat (g)"
-                                                    value={newFood.saturatedFat}
-                                                    onChange={(e) => setNewFood({ ...newFood, saturatedFat: e.target.value })}
-                                                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                                                />
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={addFood}
-                                                    className="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <Check />
-                                                    Save
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowAddFood(false)}
-                                                    className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <X />
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="bg-white rounded-2xl shadow-lg p-6">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-4">Food Database ({foodDatabase.length} items)</h3>
-                                    {foodDatabase.length === 0 ? (
-                                        <p className="text-gray-500 text-center py-8">No foods in database. Add your first food!</p>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {foodDatabase.map(food => (
-                                                <div key={food.id}>
-                                                    {editingFood?.id === food.id ? (
-                                                        <div className="p-4 bg-blue-50 rounded-xl space-y-3">
-                                                            <input
-                                                                type="text"
-                                                                value={editingFood.name}
-                                                                onChange={(e) => setEditingFood({ ...editingFood, name: e.target.value })}
-                                                                className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                            />
-                                                            <div className="grid grid-cols-3 gap-2 text-sm">
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.calories}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, calories: e.target.value })}
-                                                                    placeholder="Cal"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.protein}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, protein: e.target.value })}
-                                                                    placeholder="Protein"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.fat}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, fat: e.target.value })}
-                                                                    placeholder="Fat"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.carb}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, carb: e.target.value })}
-                                                                    placeholder="Carbs"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.dietryFiber}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, dietryFiber: e.target.value })}
-                                                                    placeholder="Fiber"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                                <input
-                                                                    type="number"
-                                                                    value={editingFood.saturatedFat}
-                                                                    onChange={(e) => setEditingFood({ ...editingFood, saturatedFat: e.target.value })}
-                                                                    placeholder="Sat Fat"
-                                                                    className="w-full p-2 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                                                />
-                                                            </div>
-                                                            <div className="flex gap-2">
-                                                                <button
-                                                                    onClick={updateFood}
-                                                                    className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
-                                                                >
-                                                                    <Check size={16} />
-                                                                    Save
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => setEditingFood(null)}
-                                                                    className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center justify-center gap-1"
-                                                                >
-                                                                    <X size={16} />
-                                                                    Cancel
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-start justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                                                            <div className="flex-1">
-                                                                <div className="font-semibold text-gray-800 mb-1">{food.name}</div>
-                                                                <div className="text-sm text-gray-600 flex flex-wrap gap-x-3 gap-y-1">
-                                                                    <span>{food.calories} cal</span>
-                                                                    <span>P: {food.protein}g</span>
-                                                                    <span>F: {food.fat}g</span>
-                                                                    <span>C: {food.carb}g</span>
-                                                                    {food.dietryFiber > 0 && <span>Fiber: {food.dietryFiber}g</span>}
-                                                                    {food.saturatedFat > 0 && <span>Sat: {food.saturatedFat}g</span>}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2 ml-4">
-                                                                <button
-                                                                    onClick={() => setEditingFood(food)}
-                                                                    className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                                                                >
-                                                                    <Edit2 />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => deleteFood(food.id)}
-                                                                    className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                                >
-                                                                    <Trash2 />
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        ReactDOM.render(<MacroTracker />, document.getElementById('root'));
-    </script>
+render();
+if(API_URL) loadAll();
+</script>
 </body>
 </html>
