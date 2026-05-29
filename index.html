@@ -1,551 +1,1257 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>NutriTrack</title>
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#09090b">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#09090b;--card:#18181b;--card2:#1f1f23;--border:#27272a;--border2:#3f3f46;
-  --text:#fafafa;--text2:#a1a1aa;--text3:#71717a;--dim:#52525b;
-  --accent:#a78bfa;--accent2:#c4b5fd;--accent-dim:rgba(167,139,250,0.1);--accent-dim2:rgba(167,139,250,0.15);
-  --green:#6ee7b7;--green-dim:rgba(110,231,183,0.1);
-  --red:#fca5a5;--red-dim:rgba(252,165,165,0.08);
-  --blue:#93c5fd;--amber:#fcd34d;
-}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:72px;-webkit-tap-highlight-color:transparent}
-input,select,button{font-family:inherit}
-input,select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;width:100%;outline:none;transition:border 0.2s}
-input:focus,select:focus{border-color:var(--accent)}
-input::placeholder{color:var(--dim)}
-select{cursor:pointer;-webkit-appearance:none;appearance:none}
-button{cursor:pointer;border:none;font-weight:500;transition:opacity 0.15s}
-button:active{opacity:0.8}
-
-.hdr{padding:24px 20px 16px;display:flex;justify-content:space-between;align-items:center}
-.hdr h1{font-size:22px;font-weight:700;letter-spacing:-0.5px}
-.hdr-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
-.hdr-btn svg{width:18px;height:18px}
-
-.wrap{padding:0 20px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
-.card-flat{background:transparent;border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
-
-.btn{border-radius:12px;padding:12px 20px;font-size:14px;font-weight:500;color:var(--bg);letter-spacing:-0.2px}
-.btn-accent{background:var(--accent)}
-.btn-green{background:var(--green);color:var(--bg)}
-.btn-ghost{background:var(--card);color:var(--text2);border:1px solid var(--border)}
-.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(252,165,165,0.15)}
-.btn-sm{background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:400}
-
-.label{font-size:12px;color:var(--text3);margin-bottom:6px;display:block;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
-.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb14{margin-bottom:14px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
-.row{display:flex;gap:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* Nav */
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;background:rgba(9,9,11,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:10;padding:4px 0}
-.nav button{flex:1;padding:10px 0 8px;background:none;border:none;color:var(--dim);font-size:10px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;letter-spacing:0.3px;text-transform:uppercase;transition:color 0.2s}
-.nav button.active{color:var(--accent)}
-.nav button svg{width:20px;height:20px}
-
-.empty{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty p{font-size:14px;line-height:1.5}
-
-.food-item{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
-.food-item:last-child{border-bottom:none}
-.food-item .info{flex:1;min-width:0}
-.food-item .name{font-weight:500;font-size:14px;margin-bottom:3px}
-.food-item .meta{font-size:12px;color:var(--text3);line-height:1.4}
-.food-item .actions{display:flex;gap:6px;flex-shrink:0;margin-left:12px}
-
-.macro-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.macro-row:last-child{margin-bottom:0}
-.macro-label{font-size:12px;color:var(--text3);width:52px;flex-shrink:0;font-weight:500}
-.macro-track{flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
-.macro-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
-.macro-val{font-size:12px;font-weight:500;width:50px;text-align:right;flex-shrink:0}
-
-.search-list{max-height:220px;overflow-y:auto;border-radius:12px;border:1px solid var(--border);background:var(--card)}
-.search-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.15s}
-.search-item:last-child{border-bottom:none}
-.search-item:hover,.search-item.sel{background:var(--accent-dim)}
-.search-item.sel{border-left:2px solid var(--accent)}
-.search-item .sname{font-weight:500;font-size:14px;margin-bottom:2px}
-.search-item .smeta{font-size:11px;color:var(--text3)}
-
-.preview{background:var(--accent-dim);border:1px solid var(--accent-dim2);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text2)}
-.preview b{color:var(--text);font-weight:600}
-
-.config-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;margin:60px 20px;text-align:center}
-.config-box h2{margin-bottom:8px;font-size:22px;font-weight:700;letter-spacing:-0.5px}
-.config-box p{font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.5}
-.config-box input{margin-bottom:14px}
-
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card2);color:var(--text);padding:10px 24px;border-radius:12px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
-.toast.show{opacity:1}
-
-.overlay{position:fixed;inset:0;background:rgba(9,9,11,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50}
-.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Date nav */
-.date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.date-nav .date-label{text-align:center}
-.date-nav .day{font-size:15px;font-weight:600}
-.date-nav .today-badge{font-size:10px;color:var(--accent);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
-.date-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
-.date-btn svg{width:16px;height:16px}
-
-/* Ring */
-.ring-section{display:flex;align-items:center;gap:24px;margin-bottom:4px}
-.ring-wrap{position:relative;width:110px;height:110px;flex-shrink:0}
-.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-val{font-size:24px;font-weight:700;letter-spacing:-1px}
-.ring-sub{font-size:11px;color:var(--text3);margin-top:1px}
-
-/* Section titles */
-.section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;font-weight:500;margin-bottom:10px;padding-left:4px}
-
-/* Remove btn in entries */
-.remove-btn{background:transparent;color:var(--dim);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all 0.15s;flex-shrink:0}
-.remove-btn:hover{background:var(--red-dim);color:var(--red)}
-.remove-btn svg{width:14px;height:14px}
-</style>
-</head>
-<body>
-
-<div id="app"></div>
-<div id="toast" class="toast"></div>
-<div id="overlay" class="overlay" style="display:none"><div class="spinner"></div></div>
-
-<script>
-let API_URL = localStorage.getItem("nutritrack_api_url") || "";
-const GOALS_KEY = "nutritrack_goals";
-let goals = JSON.parse(localStorage.getItem(GOALS_KEY) || "null") || {calories:2000,protein:150,carbs:250,fat:65,fiber:30};
-
-let foods = [];
-let logEntries = [];
-let currentView = "daily";
-let selectedDate = todayStr();
-
-function todayStr(){ return new Date().toISOString().split("T")[0]; }
-function fmtDate(s){ const d=new Date(s+"T12:00:00"); return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}); }
-function normalizeDate(d){ return String(d).substring(0,10); }
-function getFood(id){ return foods.find(f=>f.id===id); }
-function dayEntries(date){ return logEntries.filter(e=>normalizeDate(e.date)===date); }
-function dayTotals(date){
-  const t={calories:0,protein:0,fat:0,carbs:0,fiber:0};
-  dayEntries(date).forEach(e=>{
-    const f=getFood(e.foodId); if(!f) return;
-    t.calories+=f.calories*e.qty; t.protein+=f.protein*e.qty;
-    t.fat+=f.fat*e.qty; t.carbs+=f.carbs*e.qty; t.fiber+=f.fiber*e.qty;
-  });
-  return t;
-}
-
-// Icons as SVG
-const icons = {
-  chevL: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>`,
-  chevR: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>`,
-  settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
-  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>`,
-  apple: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C9.5 2 8 4 8 4s-4-.5-5 3c-1 3.5.5 7 3 10s4 4 6 4 3.5-1 6-4 4-6.5 3-10c-1-3.5-5-3-5-3s-1.5-2-4-2z"/><path d="M12 2c0 2-2 4-2 4"/></svg>`,
-  target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  refresh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`,
-};
-
-function toast(msg){
-  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
-  setTimeout(()=> t.classList.remove("show"), 2000);
-}
-function showLoading(){ document.getElementById("overlay").style.display="flex"; }
-function hideLoading(){ document.getElementById("overlay").style.display="none"; }
-
-async function api(action, params={}, body=null){
-  const url = new URL(API_URL);
-  url.searchParams.set("action", action);
-  Object.entries(params).forEach(([k,v])=> url.searchParams.set(k,v));
-  if(body) url.searchParams.set("payload", JSON.stringify(body));
-  const r = await fetch(url.toString(), { method: "GET", redirect: "follow" });
-  if(!r.ok) throw new Error("HTTP " + r.status);
-  return r.json();
-}
-
-async function loadAll(){
-  showLoading();
-  try{
-    const [fr, lr] = await Promise.all([api("getFoods"), api("getAllLog")]);
-    if(fr.foods) foods = fr.foods;
-    if(lr.entries) logEntries = lr.entries;
-  }catch(e){ toast("Failed to load data"); console.error(e); }
-  hideLoading(); render();
-}
-
-async function loadLogOnly(){
-  const r = await api("getAllLog");
-  if(r.entries) logEntries = r.entries;
-}
-
-function navigate(view){ currentView=view; render(); }
-function shiftDate(n){
-  const d=new Date(selectedDate+"T12:00:00"); d.setDate(d.getDate()+n);
-  selectedDate=d.toISOString().split("T")[0]; render();
-}
-
-// ---- RENDER ----
-function macroRow(label, val, max, color){
-  const pct=max>0?Math.min(val/max*100,100):0;
-  return `<div class="macro-row"><span class="macro-label">${label}</span><div class="macro-track"><div class="macro-fill" style="width:${pct}%;background:${color}"></div></div><span class="macro-val" style="color:${color}">${Math.round(val)}${label==="Cal"?"":"g"}</span></div>`;
-}
-
-function render(){
-  const app=document.getElementById("app");
-
-  if(!API_URL){
-    app.innerHTML=`
-      <div class="config-box">
-        <h2>NutriTrack</h2>
-        <p>Connect your Google Sheet to start tracking. Paste your Apps Script deployment URL below.</p>
-        <input id="apiInput" placeholder="https://script.google.com/macros/s/..." />
-        <button class="btn btn-accent" style="width:100%" onclick="saveApiUrl()">Connect</button>
-      </div>`;
-    return;
-  }
-
-  let navHtml=`<div class="nav">
-    <button class="${currentView==="daily"||currentView==="addEntry"?"active":""}" onclick="navigate('daily')">${icons.chart}<span>Daily</span></button>
-    <button class="${currentView==="foods"||currentView==="addFood"?"active":""}" onclick="navigate('foods')">${icons.apple}<span>Foods</span></button>
-    <button class="${currentView==="goals"?"active":""}" onclick="navigate('goals')">${icons.target}<span>Goals</span></button>
-  </div>`;
-
-  let h=`<div class="hdr"><h1>NutriTrack</h1><button class="hdr-btn" onclick="navigate('settings')">${icons.settings}</button></div><div class="wrap">`;
-
-  switch(currentView){
-    case "daily": h+=renderDaily(); break;
-    case "foods": h+=renderFoods(); break;
-    case "addFood": h+=renderFoodForm(); break;
-    case "addEntry": h+=renderEntryForm(); break;
-    case "goals": h+=renderGoals(); break;
-    case "settings": h+=renderSettings(); break;
-  }
-  h+=`</div>`;
-  app.innerHTML = h + navHtml;
-
-  if(currentView === "addEntry"){
-    const si = document.getElementById("searchInput");
-    if(si && document._restoreFocus){
-      si.focus(); si.selectionStart = si.selectionEnd = si.value.length;
-      document._restoreFocus = false;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>NutriTrack · Macro & Wellness Tracker</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for Weight Tracking -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            bgDark: '#09090b',
+            cardDark: '#18181b',
+            cardDark2: '#27272a',
+            borderDark: '#3f3f46'
+          }
+        }
+      }
     }
-  }
-}
+  </script>
+  <style>
+    body {
+      background-color: #09090b;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    /* Hide scrollbar for chrome, safari and opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="text-zinc-100 max-w-md mx-auto min-h-screen flex flex-col pb-20 relative">
 
-// ---- DAILY ----
-function renderDaily(){
-  const t=dayTotals(selectedDate);
-  const entries=dayEntries(selectedDate);
-  const isToday=selectedDate===todayStr();
-  const pct=goals.calories>0?Math.min(t.calories/goals.calories*100,100):0;
-  const over=t.calories>goals.calories;
-  const ringColor=over?"var(--red)":"var(--accent)";
-  const remaining=Math.max(0,goals.calories-t.calories);
-
-  let h=`
-    <div class="date-nav">
-      <button class="date-btn" onclick="shiftDate(-1)">${icons.chevL}</button>
-      <div class="date-label"><div class="day">${fmtDate(selectedDate)}</div>${isToday?'<div class="today-badge">Today</div>':''}</div>
-      <button class="date-btn" onclick="shiftDate(1)">${icons.chevR}</button>
+  <!-- Global Loader -->
+  <div id="globalLoader" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="flex flex-col items-center space-y-4">
+      <svg class="animate-spin h-10 w-10 text-brand-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-zinc-400 text-sm font-medium" id="loaderText">Loading data...</span>
     </div>
+  </div>
 
-    <div class="card mb20">
-      <div class="ring-section">
-        <div class="ring-wrap">
-          <svg viewBox="0 0 36 36" style="width:110px;height:110px;transform:rotate(-90deg)">
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--card2)" stroke-width="2.5"/>
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke="${ringColor}" stroke-width="2.5" stroke-dasharray="${pct} 100" stroke-linecap="round" style="transition:stroke-dasharray 0.5s ease"/>
+  <!-- Connect Screen (Modal Overlay if not connected) -->
+  <div id="connectScreen" class="fixed inset-0 bg-zinc-950 z-40 flex flex-col justify-center px-6 hidden">
+    <div class="space-y-6 max-w-sm mx-auto w-full">
+      <div class="text-center space-y-2">
+        <div class="mx-auto w-16 h-16 bg-brand-500/10 text-brand-400 flex items-center justify-center rounded-2xl mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight">Welcome to NutriTrack</h1>
+        <p class="text-zinc-400 text-sm">Connect your personal Google Spreadsheet to begin tracking your macros securely.</p>
+      </div>
+      <div class="space-y-4">
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Apps Script Web App URL</label>
+          <input type="url" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-brand-400 text-sm transition-colors">
+        </div>
+        <button onclick="saveApiUrl()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl py-3 text-sm transition-colors shadow-lg shadow-brand-500/20">Connect Spreadsheet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Header -->
+  <header class="sticky top-0 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900 px-4 py-3 flex flex-col space-y-3 z-30">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-brand-500/20 rounded-lg flex items-center justify-center text-brand-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <span class="font-bold text-lg tracking-tight">NutriTrack</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="showSettings()" class="p-1.5 text-zinc-400 hover:text-zinc-200 rounded-lg bg-zinc-900 border border-zinc-800/50">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Date Selector -->
+    <div class="flex items-center justify-between bg-zinc-900/50 rounded-xl p-1 border border-zinc-800/50">
+      <button onclick="changeDate(-1)" class="p-2 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded-lg transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+      </button>
+      <div class="flex items-center space-x-1.5 font-semibold text-sm text-zinc-200 cursor-pointer" onclick="document.getElementById('datePicker').showPicker()">
+        <span id="dateLabel">Today</span>
+        <input type="date" id="datePicker" class="absolute opacity-0 pointer-events-none w-0 h-0" onchange="onDatePickerChange(this.value)">
+        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      </div>
+      <button onclick="changeDate(1)" class="p-2 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded-lg transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="mainContent" class="flex-1 px-4 py-4 space-y-6 overflow-y-auto">
+
+    <!-- VIEW 1: DAILY TRACKING DASHBOARD -->
+    <div id="viewDaily" class="space-y-6">
+      
+      <!-- Calorie Remaining Widget -->
+      <div class="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-5 flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Calories Remaining</span>
+          <div class="text-3xl font-bold tracking-tight flex items-baseline">
+            <span id="calRemaining" class="text-brand-400">2000</span>
+            <span class="text-xs text-zinc-500 font-normal ml-1.5">/ 2000 kcal</span>
+          </div>
+          <p class="text-xs text-zinc-400"><span id="calConsumedText" class="font-semibold text-zinc-300">0</span> consumed</p>
+        </div>
+        <!-- Visual Ring -->
+        <div class="relative w-20 h-20">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+            <path class="text-zinc-800" stroke="currentColor" stroke-width="3.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+            <path id="calProgressRing" class="text-brand-400 transition-all duration-500" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" stroke-width="3.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
           </svg>
-          <div class="ring-center">
-            <div class="ring-val">${Math.round(t.calories)}</div>
-            <div class="ring-sub">${over?'over by '+Math.round(t.calories-goals.calories):Math.round(remaining)+' left'}</div>
+          <div class="absolute inset-0 flex items-center justify-center flex-col text-[10px] font-bold text-zinc-400">
+            <span id="calProgressPercent">0%</span>
           </div>
         </div>
-        <div style="flex:1">
-          ${macroRow("Protein",t.protein,goals.protein,"var(--accent)")}
-          ${macroRow("Carbs",t.carbs,goals.carbs,"var(--green)")}
-          ${macroRow("Fat",t.fat,goals.fat,"var(--amber)")}
-          ${macroRow("Fiber",t.fiber,goals.fiber,"var(--blue)")}
+      </div>
+
+      <!-- Macro Grid Widget -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Protein -->
+        <div class="bg-zinc-900/40 border border-zinc-800/30 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-zinc-400">Protein</span>
+            <span class="font-semibold"><span id="pConsumed">0</span>g / 130g</span>
+          </div>
+          <div class="w-full bg-zinc-800 rounded-full h-2">
+            <div id="pProgressBar" class="bg-rose-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+        <!-- Carbs -->
+        <div class="bg-zinc-900/40 border border-zinc-800/30 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-zinc-400">Carbs</span>
+            <span class="font-semibold"><span id="cConsumed">0</span>g / 230g</span>
+          </div>
+          <div class="w-full bg-zinc-800 rounded-full h-2">
+            <div id="cProgressBar" class="bg-amber-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+        <!-- Fats -->
+        <div class="bg-zinc-900/40 border border-zinc-800/30 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-zinc-400">Fats</span>
+            <span class="font-semibold"><span id="fConsumed">0</span>g / 65g</span>
+          </div>
+          <div class="w-full bg-zinc-800 rounded-full h-2">
+            <div id="fProgressBar" class="bg-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+        <!-- Fiber -->
+        <div class="bg-zinc-900/40 border border-zinc-800/30 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between text-xs">
+            <span class="font-medium text-zinc-400">Fiber</span>
+            <span class="font-semibold"><span id="fibConsumed">0</span>g / 30g</span>
+          </div>
+          <div class="w-full bg-zinc-800 rounded-full h-2">
+            <div id="fibProgressBar" class="bg-cyan-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Water & Weight Quick Trackers -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Water Widget -->
+        <div class="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4 flex flex-col justify-between h-36">
+          <div class="flex justify-between items-start">
+            <div class="space-y-0.5">
+              <span class="text-xs font-semibold text-zinc-500">Water Intake</span>
+              <div class="text-lg font-bold flex items-baseline">
+                <span id="waterConsumed" class="text-blue-400">0</span>
+                <span class="text-zinc-500 text-xs ml-1">/ 2.0L</span>
+              </div>
+            </div>
+            <div id="waterIcon" class="w-8 h-8 bg-blue-500/10 text-blue-400 flex items-center justify-center rounded-lg">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            </div>
+          </div>
+          <div class="flex gap-1.5">
+            <button onclick="logWater(250)" class="flex-1 py-2 bg-zinc-800 border border-zinc-700/50 hover:bg-zinc-700/50 text-xs rounded-xl transition-colors font-semibold text-blue-300">+250ml</button>
+            <button onclick="logWater(500)" class="flex-1 py-2 bg-zinc-800 border border-zinc-700/50 hover:bg-zinc-700/50 text-xs rounded-xl transition-colors font-semibold text-blue-300">+500ml</button>
+          </div>
+        </div>
+
+        <!-- Weight Widget -->
+        <div class="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4 flex flex-col justify-between h-36">
+          <div class="flex justify-between items-start">
+            <div class="space-y-0.5">
+              <span class="text-xs font-semibold text-zinc-500">Body Weight</span>
+              <div class="text-lg font-bold flex items-baseline">
+                <span id="todayWeight" class="text-purple-400">--</span>
+                <span class="text-zinc-500 text-xs ml-1">kg</span>
+              </div>
+            </div>
+            <div class="w-8 h-8 bg-purple-500/10 text-purple-400 flex items-center justify-center rounded-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 12H4m16 0c0 4.418-3.582 8-8 8s-8-3.582-8-8 3.582-8 8-8 8 3.582 8 8z"></path></svg>
+            </div>
+          </div>
+          <div class="flex space-x-1.5">
+            <input type="number" step="0.1" id="weightInput" placeholder="Log kg" class="w-full bg-zinc-800 border border-zinc-700/50 rounded-xl px-2 py-1.5 text-center text-xs placeholder-zinc-500 text-zinc-100 focus:outline-none focus:border-purple-400">
+            <button onclick="submitWeight()" class="px-3 bg-purple-500/20 border border-purple-500/30 hover:bg-purple-500/30 text-purple-300 text-xs rounded-xl transition-colors font-semibold">Log</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logged Meals Section -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-400">Today's Log</h3>
+          <span class="text-xs text-zinc-500" id="totalMealCal">0 kcal logged</span>
+        </div>
+        <div id="mealsList" class="space-y-4">
+          <!-- Meals injected here -->
+          <div class="text-center py-10 border border-dashed border-zinc-800 rounded-2xl text-zinc-500 text-sm">
+            No meals logged for today. Press "+" to log one!
+          </div>
         </div>
       </div>
     </div>
 
-    <button class="btn btn-accent mb20" style="width:100%;padding:14px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="entrySearch='';entryFoodId='';entryQty='1';navigate('addEntry')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Log Food
-    </button>`;
-
-  if(entries.length===0){
-    h+=`<div class="empty"><p>Nothing logged yet.<br>Tap above to start tracking.</p></div>`;
-  } else {
-    h+=`<div class="section-title">Today's log</div>`;
-    h+=`<div class="card" style="padding:0;overflow:hidden">`;
-    entries.forEach(e=>{
-      const f=getFood(e.foodId); if(!f) return;
-      const cal=Math.round(f.calories*e.qty);
-      h+=`<div class="food-item">
-        <div class="info">
-          <div class="name">${f.name}</div>
-          <div class="meta">${e.qty} serving${e.qty!==1?'s':''} · ${cal} kcal · ${Math.round(f.protein*e.qty)}g P · ${Math.round(f.fat*e.qty)}g F · ${Math.round(f.carbs*e.qty)}g C</div>
-        </div>
-        <button class="remove-btn" onclick="doDeleteLog('${e.id}')">${icons.x}</button>
-      </div>`;
-    });
-    h+=`</div>`;
-  }
-  return h;
-}
-
-async function doDeleteLog(id){
-  logEntries = logEntries.filter(e=>e.id!==id);
-  render(); toast("Removed");
-  try{ await api("deleteLogEntry",{id}); }catch(e){ console.error(e); }
-}
-
-// ---- FOODS ----
-function renderFoods(){
-  let h=`<div style="display:flex;justify-content:space-between;align-items:center" class="mb20">
-    <div><h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px">Food Library</h2><p style="font-size:12px;color:var(--text3);margin-top:2px">${foods.length} item${foods.length!==1?'s':''}</p></div>
-    <button class="btn btn-accent" style="display:flex;align-items:center;gap:6px;padding:10px 16px" onclick="startAddFood()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>
-  </div>`;
-  if(foods.length===0){
-    h+=`<div class="empty"><p>No foods yet.<br>Add items from nutrition labels.</p></div>`;
-  } else {
-    h+=`<div class="card" style="padding:0;overflow:hidden">`;
-    foods.forEach(f=>{
-      h+=`<div class="food-item">
-        <div class="info">
-          <div class="name">${f.name}</div>
-          <div class="meta">Per ${f.servingSize} ${f.servingUnit} · ${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g · Fiber ${f.fiber}g</div>
-        </div>
-        <div class="actions">
-          <button class="btn-sm" onclick="startEditFood('${f.id}')">Edit</button>
-          <button class="remove-btn" onclick="doDeleteFood('${f.id}')">${icons.x}</button>
-        </div>
-      </div>`;
-    });
-    h+=`</div>`;
-  }
-  return h;
-}
-
-let foodForm={name:"",servingSize:"",servingUnit:"g",calories:"",protein:"",fat:"",carbs:"",fiber:""};
-let editingFoodId=null;
-
-function startAddFood(){
-  editingFoodId=null;
-  foodForm={name:"",servingSize:"",servingUnit:"g",calories:"",protein:"",fat:"",carbs:"",fiber:""};
-  navigate("addFood");
-}
-function startEditFood(id){
-  const f=getFood(id); editingFoodId=id;
-  foodForm={name:f.name,servingSize:String(f.servingSize),servingUnit:f.servingUnit,calories:String(f.calories),protein:String(f.protein),fat:String(f.fat),carbs:String(f.carbs),fiber:String(f.fiber)};
-  navigate("addFood");
-}
-
-function renderFoodForm(){
-  const title=editingFoodId?"Edit Food":"Add Food";
-  return `<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">${title}</h2>
-    <div class="card">
-      <div class="mb14"><label class="label">Name</label><input value="${esc(foodForm.name)}" placeholder="e.g. Greek Yogurt" oninput="foodForm.name=this.value"/></div>
-      <div class="row mb14">
-        <div style="flex:1"><label class="label">Serving size</label><input type="number" value="${esc(foodForm.servingSize)}" placeholder="100" oninput="foodForm.servingSize=this.value"/></div>
-        <div style="width:100px"><label class="label">Unit</label><select onchange="foodForm.servingUnit=this.value">
-          ${["g","ml","oz","cup","tbsp","tsp","piece","scoop","slice","serving"].map(u=>`<option value="${u}"${foodForm.servingUnit===u?" selected":""}>${u}</option>`).join("")}
-        </select></div>
+    <!-- VIEW 2: FOOD LIBRARY TAB -->
+    <div id="viewFoods" class="space-y-4 hidden">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold tracking-tight">Food Library</h2>
+        <button onclick="openFoodModal()" class="px-3.5 py-2 bg-brand-500 text-white text-xs rounded-xl transition-colors font-semibold flex items-center space-x-1 hover:bg-brand-600">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+          <span>New Food</span>
+        </button>
       </div>
-      <div class="grid2 mb14">
-        <div><label class="label">Calories</label><input type="number" value="${esc(foodForm.calories)}" placeholder="0" oninput="foodForm.calories=this.value"/></div>
-        <div><label class="label">Protein (g)</label><input type="number" value="${esc(foodForm.protein)}" placeholder="0" oninput="foodForm.protein=this.value"/></div>
-        <div><label class="label">Fat (g)</label><input type="number" value="${esc(foodForm.fat)}" placeholder="0" oninput="foodForm.fat=this.value"/></div>
-        <div><label class="label">Carbs (g)</label><input type="number" value="${esc(foodForm.carbs)}" placeholder="0" oninput="foodForm.carbs=this.value"/></div>
-        <div><label class="label">Fiber (g)</label><input type="number" value="${esc(foodForm.fiber)}" placeholder="0" oninput="foodForm.fiber=this.value"/></div>
+      
+      <!-- Search Input -->
+      <div class="relative">
+        <input type="text" id="foodLibrarySearch" oninput="renderFoodLibrary()" placeholder="Search food library..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-400 text-sm">
+        <svg class="w-4 h-4 text-zinc-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
-      <div class="row">
-        <button class="btn btn-ghost" style="flex:1" onclick="navigate('foods')">Cancel</button>
-        <button class="btn btn-accent" style="flex:1" onclick="doSaveFood()">Save</button>
-      </div>
-    </div>`;
-}
 
-function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
-
-async function doSaveFood(){
-  if(!foodForm.name||!foodForm.servingSize||!foodForm.calories) return toast("Fill required fields");
-  const obj={name:foodForm.name.trim(),servingSize:parseFloat(foodForm.servingSize),servingUnit:foodForm.servingUnit,calories:parseFloat(foodForm.calories),protein:parseFloat(foodForm.protein)||0,fat:parseFloat(foodForm.fat)||0,carbs:parseFloat(foodForm.carbs)||0,fiber:parseFloat(foodForm.fiber)||0};
-  if(editingFoodId){
-    obj.id=editingFoodId;
-    const idx=foods.findIndex(f=>f.id===editingFoodId);
-    if(idx>=0) foods[idx]=obj;
-  } else {
-    obj.id="temp_"+Date.now();
-    foods.push(obj);
-  }
-  const wasEditing=!!editingFoodId;
-  editingFoodId=null; currentView="foods";
-  render(); toast(wasEditing?"Updated":"Added");
-  try{
-    if(wasEditing){ await api("updateFood",{},obj); }
-    else{ const r=await api("addFood",{},obj); if(r.id){ const f=foods.find(f=>f.id===obj.id); if(f) f.id=r.id; } }
-  }catch(e){ console.error(e); }
-}
-
-async function doDeleteFood(id){
-  if(!confirm("Delete this food?")) return;
-  foods = foods.filter(f=>f.id!==id);
-  render(); toast("Deleted");
-  try{ await api("deleteFood",{id}); }catch(e){ console.error(e); }
-}
-
-// ---- ADD ENTRY ----
-let entrySearch="", entryFoodId="", entryQty="1";
-
-function renderEntryForm(){
-  const filtered=foods.filter(f=>f.name.toLowerCase().includes(entrySearch.toLowerCase()));
-  const sel=getFood(entryFoodId);
-  let h=`<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Log Food<span style="color:var(--text3);font-weight:400;font-size:14px;margin-left:8px">${fmtDate(selectedDate)}</span></h2>`;
-  if(foods.length===0){
-    return h+`<div class="card" style="text-align:center;padding:32px"><p style="color:var(--text3);margin-bottom:16px">Add foods to your library first.</p><button class="btn btn-accent" onclick="startAddFood()">Add Food</button></div>`;
-  }
-
-  h+=`<div class="mb14"><label class="label">Search</label><input id="searchInput" value="${esc(entrySearch)}" placeholder="Search your foods..." oninput="handleSearch(this.value)"/></div>
-    <div class="search-list mb14">`;
-  if(filtered.length===0){
-    h+=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No matches</div>`;
-  } else {
-    filtered.forEach(f=>{
-      h+=`<div class="search-item${entryFoodId===f.id?' sel':''}" onclick="selectEntryFood('${f.id}')"><div class="sname">${f.name}</div><div class="smeta">${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g per ${f.servingSize} ${f.servingUnit}</div></div>`;
-    });
-  }
-  h+=`</div>
-    <div class="mb14"><label class="label">Servings</label><input type="number" step="0.25" min="0.25" value="${entryQty}" oninput="entryQty=this.value;updatePreview()"/></div>
-    <div id="entryPreview" class="mb14">`;
-  if(sel){
-    const q=parseFloat(entryQty)||0;
-    h+=`<div class="preview"><b>Total:</b> ${Math.round(sel.calories*q)} kcal · P ${Math.round(sel.protein*q)}g · F ${Math.round(sel.fat*q)}g · C ${Math.round(sel.carbs*q)}g</div>`;
-  }
-  h+=`</div>
-    <div class="row">
-      <button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button>
-      <button class="btn btn-accent" style="flex:1;opacity:${entryFoodId?1:0.4}" onclick="doAddEntry()" ${entryFoodId?'':'disabled'}>Log Entry</button>
-    </div>`;
-  return h;
-}
-
-function handleSearch(val){
-  entrySearch=val; entryFoodId="";
-  const filtered=foods.filter(f=>f.name.toLowerCase().includes(val.toLowerCase()));
-  const listEl=document.querySelector(".search-list");
-  if(!listEl) return;
-  let html="";
-  if(filtered.length===0){ html=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No matches</div>`; }
-  else { filtered.forEach(f=>{ html+=`<div class="search-item" onclick="selectEntryFood('${f.id}')"><div class="sname">${f.name}</div><div class="smeta">${f.calories} kcal · P ${f.protein}g · F ${f.fat}g · C ${f.carbs}g per ${f.servingSize} ${f.servingUnit}</div></div>`; }); }
-  listEl.innerHTML=html;
-  const prev=document.getElementById("entryPreview"); if(prev) prev.innerHTML="";
-}
-
-function selectEntryFood(id){
-  entryFoodId=id;
-  const f=getFood(id); if(!f) return;
-  const si=document.getElementById("searchInput");
-  if(si) si.value=f.name;
-  entrySearch=f.name;
-  document.querySelectorAll(".search-item").forEach(el=>{
-    el.classList.remove("sel");
-    if(el.querySelector(".sname").textContent===f.name) el.classList.add("sel");
-  });
-  updatePreview();
-  const btn=document.querySelector(".btn-accent[onclick='doAddEntry()']");
-  if(btn){ btn.disabled=false; btn.style.opacity=1; }
-}
-
-function updatePreview(){
-  const f=getFood(entryFoodId);
-  const prev=document.getElementById("entryPreview");
-  if(!prev) return;
-  if(!f){ prev.innerHTML=""; return; }
-  const q=parseFloat(entryQty)||0;
-  prev.innerHTML=`<div class="preview"><b>Total:</b> ${Math.round(f.calories*q)} kcal · P ${Math.round(f.protein*q)}g · F ${Math.round(f.fat*q)}g · C ${Math.round(f.carbs*q)}g</div>`;
-}
-
-async function doAddEntry(){
-  if(!entryFoodId) return;
-  const qty=parseFloat(entryQty)||1;
-  const time=new Date().toISOString();
-  const tempId="temp_"+Date.now();
-  const fId=entryFoodId;
-  logEntries.push({id:tempId, date:selectedDate, foodId:fId, qty, time});
-  entrySearch=""; entryFoodId=""; entryQty="1";
-  currentView="daily"; render(); toast("Logged!");
-  try{
-    const r=await api("addLogEntry",{},{date:selectedDate,foodId:fId,qty,time});
-    if(r.id){ const entry=logEntries.find(e=>e.id===tempId); if(entry) entry.id=r.id; }
-  }catch(e){ console.error(e); }
-}
-
-// ---- GOALS ----
-let goalsForm={...goals};
-
-function renderGoals(){
-  goalsForm={...goals};
-  let h=`<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Daily Goals</h2><div class="card">`;
-  [["calories","Calories (kcal)"],["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["fiber","Fiber (g)"]].forEach(([k,l])=>{
-    h+=`<div class="mb14"><label class="label">${l}</label><input type="number" value="${goalsForm[k]}" oninput="goalsForm.${k}=parseFloat(this.value)||0"/></div>`;
-  });
-  h+=`<div class="row"><button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button><button class="btn btn-accent" style="flex:1" onclick="doSaveGoals()">Save</button></div></div>`;
-  return h;
-}
-
-function doSaveGoals(){
-  goals={...goalsForm};
-  localStorage.setItem(GOALS_KEY,JSON.stringify(goals));
-  toast("Goals saved"); navigate("daily");
-}
-
-// ---- SETTINGS ----
-function renderSettings(){
-  return `<h2 style="font-size:18px;font-weight:600;letter-spacing:-0.3px" class="mb20">Settings</h2>
-    <div class="card mb14">
-      <div class="mb14"><label class="label">Apps Script URL</label><input id="settingsUrl" value="${esc(API_URL)}"/></div>
-      <div class="row">
-        <button class="btn btn-ghost" style="flex:1" onclick="navigate('daily')">Cancel</button>
-        <button class="btn btn-accent" style="flex:1" onclick="doUpdateUrl()">Save</button>
+      <div id="foodLibraryList" class="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+        <!-- Foods injected here -->
       </div>
     </div>
-    <button class="btn btn-ghost" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px" onclick="loadAll()">${icons.refresh} Reload from Sheet</button>`;
-}
 
-function doUpdateUrl(){
-  const v=document.getElementById("settingsUrl").value.trim();
-  if(!v) return toast("URL required");
-  API_URL=v; localStorage.setItem("nutritrack_api_url",v);
-  toast("URL updated"); loadAll();
-}
+    <!-- VIEW 3: WEIGHT HISTORY & CHARTS -->
+    <div id="viewWeight" class="space-y-4 hidden">
+      <h2 class="text-lg font-bold tracking-tight">Weight Trends</h2>
+      
+      <!-- Chart Card -->
+      <div class="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4">
+        <canvas id="weightChart" class="w-full h-48"></canvas>
+      </div>
 
-function saveApiUrl(){
-  const v=document.getElementById("apiInput").value.trim();
-  if(!v) return toast("Paste your Apps Script URL");
-  API_URL=v; localStorage.setItem("nutritrack_api_url",v);
-  toast("Connected!"); loadAll();
-}
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-500">Log History</h3>
+        <div id="weightHistoryList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Weight log rows injected here -->
+        </div>
+      </div>
+    </div>
 
-render();
-if(API_URL) loadAll();
-</script>
+    <!-- VIEW 4: SETTINGS / APPS SCRIPT URL -->
+    <div id="viewSettings" class="space-y-6 hidden">
+      <h2 class="text-lg font-bold tracking-tight">Settings</h2>
+      
+      <div class="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-5 space-y-4">
+        <div class="space-y-1">
+          <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Google Apps Script URL</label>
+          <input type="url" id="settingsUrlInput" placeholder="https://script.google.com/..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-zinc-100 text-sm focus:outline-none focus:border-brand-400">
+        </div>
+        <button onclick="updateSettings()" class="w-full bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/50 rounded-xl py-2.5 text-sm font-semibold transition-colors text-zinc-100">Save Settings</button>
+      </div>
+
+      <div class="bg-zinc-900/20 border border-zinc-800/30 rounded-2xl p-5 space-y-3 text-xs text-zinc-400 leading-relaxed">
+        <p class="font-bold text-zinc-300 uppercase tracking-wider text-[10px]">How it works</p>
+        <p>This app syncs directly with your private Google Sheet using Google Apps Script. Data is stored completely in your drive, keeping you in control.</p>
+        <button onclick="reloadAll(true)" class="mt-2 flex items-center space-x-1.5 text-brand-400 font-semibold hover:text-brand-300">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.248 8H18"></path></svg>
+          <span>Force Reload Everything</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Navigation Tabs Footer -->
+  <footer class="fixed bottom-0 max-w-md mx-auto w-full bg-zinc-950/95 backdrop-blur-md border-t border-zinc-900 px-6 py-3 flex justify-around items-center z-30">
+    <button onclick="navigate('daily')" id="nav_daily" class="flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+      <span class="text-[10px] font-medium">Daily</span>
+    </button>
+    <button onclick="navigate('foods')" id="nav_foods" class="flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+      <span class="text-[10px] font-medium">Library</span>
+    </button>
+    <!-- Spacing for Floating FAB -->
+    <div class="w-10"></div>
+    <button onclick="navigate('weight')" id="nav_weight" class="flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+      <span class="text-[10px] font-medium">Weight</span>
+    </button>
+    <button onclick="navigate('settings')" id="nav_settings" class="flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+      <span class="text-[10px] font-medium">Settings</span>
+    </button>
+  </footer>
+
+  <!-- Floating FAB for Logging Meals (Centered, overlaps Footer) -->
+  <button onclick="openLogMealModal()" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 border-4 border-zinc-950 z-35 hover:scale-105 transition-all focus:outline-none">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+  </button>
+
+  <!-- MODAL 1: LOG MEAL (MULTI-ITEM BUILDER) -->
+  <div id="logMealModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex items-end justify-center hidden transition-all">
+    <div class="bg-zinc-900 border-t border-zinc-800 w-full max-w-md rounded-t-3xl flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-800/50">
+        <h3 class="font-bold text-zinc-100">Log Meal</h3>
+        <button onclick="closeLogMealModal()" class="p-1 text-zinc-400 hover:text-zinc-200 rounded-lg bg-zinc-800/50">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto flex-1 no-scrollbar">
+        <!-- Meal Info (Name & Time) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Meal Name</label>
+            <select id="mealNameSelect" class="w-full bg-zinc-800 border border-zinc-700/50 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-brand-400">
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Dinner">Dinner</option>
+              <option value="Snack">Snack</option>
+              <option value="Post-Workout">Post-Workout</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Time</label>
+            <input type="text" id="mealTimeInput" class="w-full bg-zinc-800/50 border border-zinc-700/30 rounded-xl px-3 py-2 text-xs text-zinc-400 cursor-not-allowed focus:outline-none" disabled value="Today (Now)">
+          </div>
+        </div>
+
+        <!-- Food Search & Add Segment -->
+        <div class="border border-zinc-800 rounded-2xl p-3.5 bg-zinc-950/40 space-y-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-400">Add Food Item</span>
+          
+          <!-- Library Food Selection dropdown -->
+          <div class="space-y-2">
+            <input type="text" id="mealFoodSearch" oninput="filterSearchFood()" placeholder="Type to search food library..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-400 placeholder-zinc-600 text-zinc-100">
+            <div id="foodSearchResults" class="hidden border border-zinc-800 bg-zinc-900 rounded-xl max-h-36 overflow-y-auto py-1 text-xs text-zinc-300 z-50 absolute max-w-[80%]">
+              <!-- Search matches go here -->
+            </div>
+            <span id="selectedFoodText" class="text-xs text-zinc-400 italic hidden block px-1">Selected: <b class="text-brand-400 font-semibold" id="selFoodName">--</b></span>
+          </div>
+
+          <!-- Serving size / Qty input -->
+          <div class="flex items-center space-x-3">
+            <div class="flex-1">
+              <label class="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">Servings / Qty</label>
+              <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 mt-0.5">
+                <input type="number" step="0.1" id="mealFoodQty" value="1" class="w-full bg-transparent text-xs focus:outline-none text-zinc-100">
+                <span id="servingUnitLabel" class="text-xs text-zinc-500 font-semibold">g</span>
+              </div>
+            </div>
+            <button onclick="addItemToBasket()" class="mt-4 h-9 px-4 bg-brand-500/20 hover:bg-brand-500/30 border border-brand-500/30 rounded-xl text-xs text-brand-300 font-semibold transition-colors">Add Item</button>
+          </div>
+        </div>
+
+        <!-- Current Meal Basket List -->
+        <div class="space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-zinc-500">Basket Items</span>
+          <div id="basketList" class="space-y-2">
+            <!-- Items in basket injected here -->
+            <div class="text-center py-6 border border-dashed border-zinc-800 rounded-xl text-zinc-500 text-xs">
+              Add items from above to construct this meal.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-zinc-900 border-t border-zinc-800/50 flex space-x-3">
+        <button onclick="closeLogMealModal()" class="flex-1 py-2.5 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-xs font-semibold text-zinc-400 transition-colors">Cancel</button>
+        <button onclick="submitMealLog()" id="btnLogMeal" disabled class="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-brand-500/20">Log Meal (<span id="basketCalSum">0</span> kcal)</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD / EDIT FOOD -->
+  <div id="foodModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex items-end justify-center hidden">
+    <div class="bg-zinc-900 border-t border-zinc-800 w-full max-w-md rounded-t-3xl flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-800/50">
+        <h3 class="font-bold text-zinc-100" id="foodModalTitle">Add New Food</h3>
+        <button onclick="closeFoodModal()" class="p-1 text-zinc-400 hover:text-zinc-200 rounded-lg bg-zinc-800/50">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <div class="p-5 space-y-3 overflow-y-auto flex-1 no-scrollbar">
+        <input type="hidden" id="editFoodId">
+        
+        <div class="space-y-1">
+          <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Food Name</label>
+          <input type="text" id="foodName" placeholder="e.g. Whole Egg" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-brand-400 text-zinc-100 placeholder-zinc-600">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Serving Size</label>
+            <input type="number" id="foodServingSize" placeholder="e.g. 50" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-brand-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Serving Unit</label>
+            <input type="text" id="foodServingUnit" placeholder="e.g. g, ml, piece" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-brand-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+        </div>
+
+        <div class="border-t border-zinc-800/50 my-2 pt-3"><h4 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Nutrition per serving</h4></div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Calories (kcal)</label>
+            <input type="number" id="foodCalories" placeholder="0" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-rose-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Protein (g)</label>
+            <input type="number" step="0.1" id="foodProtein" placeholder="0" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-rose-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Carbohydrates (g)</label>
+            <input type="number" step="0.1" id="foodCarbs" placeholder="0" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-amber-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Fat (g)</label>
+            <input type="number" step="0.1" id="foodFat" placeholder="0" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Fiber (g)</label>
+            <input type="number" step="0.1" id="foodFiber" placeholder="0" class="w-full bg-zinc-850 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-cyan-400 text-zinc-100 placeholder-zinc-600">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-zinc-900 border-t border-zinc-800/50 flex space-x-3">
+        <button onclick="closeFoodModal()" class="flex-1 py-2.5 border border-zinc-800 hover:bg-zinc-800 rounded-xl text-xs font-semibold text-zinc-400 transition-colors">Cancel</button>
+        <button onclick="saveFood()" class="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-brand-500/20">Save Food</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+    // --- STATE ---
+    let state = {
+      apiUrl: localStorage.getItem("nutritrack_api_url") || "",
+      currentDate: new Date().toISOString().split("T")[0], // yyyy-MM-dd
+      currentView: "daily",
+      foods: [],
+      logs: [],
+      waterLogs: [],
+      weightLogs: [],
+      basket: [], // Array of { foodId, qty } for current meal build
+      selectedSearchFoodId: null,
+      weightChart: null
+    };
+
+    // Fixed goals
+    const GOALS = {
+      calories: 2000,
+      protein: 130,
+      carbs: 230,
+      fat: 65,
+      fiber: 30,
+      water: 2000 // 2 Liters in ml
+    };
+
+    // --- UI ROUTER ---
+    function navigate(view) {
+      state.currentView = view;
+      
+      // Hide all views
+      document.getElementById("viewDaily").classList.add("hidden");
+      document.getElementById("viewFoods").classList.add("hidden");
+      document.getElementById("viewWeight").classList.add("hidden");
+      document.getElementById("viewSettings").classList.add("hidden");
+
+      // Reset nav tab colors
+      ['daily', 'foods', 'weight', 'settings'].forEach(v => {
+        const btn = document.getElementById(`nav_${v}`);
+        if (btn) btn.className = "flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none";
+      });
+
+      // Show active view & activate nav button
+      const activeView = document.getElementById(`view${view.charAt(0).toUpperCase() + view.slice(1)}`);
+      if (activeView) activeView.classList.remove("hidden");
+
+      const activeNav = document.getElementById(`nav_${view}`);
+      if (activeNav) activeNav.className = "flex flex-col items-center text-brand-400 space-y-1 focus:outline-none";
+
+      // Trigger tab specific actions
+      if (view === "weight") {
+        initWeightChart();
+      }
+    }
+
+    // --- CORE API UTILITY ---
+    async function apiCall(action, params = {}, body = null) {
+      if (!state.apiUrl) {
+        showConnectScreen();
+        throw new Error("Not connected to Google Spreadsheet backend.");
+      }
+
+      const url = new URL(state.apiUrl);
+      url.searchParams.set("action", action);
+      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      if (body) url.searchParams.set("payload", JSON.stringify(body));
+
+      try {
+        const response = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || "API error");
+        return data;
+      } catch (err) {
+        console.error("API Call Failed:", err);
+        alert("Operation failed: " + err.message);
+        throw err;
+      }
+    }
+
+    // --- CONNECT MODULE ---
+    function showConnectScreen() {
+      document.getElementById("connectScreen").classList.remove("hidden");
+    }
+
+    function hideConnectScreen() {
+      document.getElementById("connectScreen").classList.add("hidden");
+    }
+
+    function saveApiUrl() {
+      const url = document.getElementById("scriptUrlInput").value.trim();
+      if (!url || !url.startsWith("https://script.google.com/")) {
+        return alert("Please enter a valid Google Apps Script Web App URL!");
+      }
+      localStorage.setItem("nutritrack_api_url", url);
+      state.apiUrl = url;
+      document.getElementById("settingsUrlInput").value = url;
+      hideConnectScreen();
+      reloadAll(true);
+    }
+
+    // --- GLOBAL LOADER MANAGEMENT ---
+    function showLoader(text = "Loading data...") {
+      document.getElementById("loaderText").innerText = text;
+      document.getElementById("globalLoader").classList.remove("hidden");
+    }
+
+    function hideLoader() {
+      document.getElementById("globalLoader").classList.add("hidden");
+    }
+
+    // --- DATE UTILS & CHANGE ---
+    function updateDateHeader() {
+      const label = document.getElementById("dateLabel");
+      const picker = document.getElementById("datePicker");
+      picker.value = state.currentDate;
+
+      const todayStr = new Date().toISOString().split("T")[0];
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+      if (state.currentDate === todayStr) {
+        label.innerText = "Today";
+      } else if (state.currentDate === yesterdayStr) {
+        label.innerText = "Yesterday";
+      } else {
+        const d = new Date(state.currentDate);
+        label.innerText = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+
+    async function changeDate(days) {
+      const current = new Date(state.currentDate);
+      current.setDate(current.getDate() + days);
+      state.currentDate = current.toISOString().split("T")[0];
+      updateDateHeader();
+      
+      // Fetch logs for new date
+      showLoader("Loading logs for new date...");
+      await fetchDayData();
+      hideLoader();
+    }
+
+    async function onDatePickerChange(val) {
+      if (!val) return;
+      state.currentDate = val;
+      updateDateHeader();
+      showLoader("Loading logs for selected date...");
+      await fetchDayData();
+      hideLoader();
+    }
+
+    // --- STATE DATA LOADER ---
+    async function reloadAll(showSpinner = false) {
+      if (showSpinner) showLoader("Loading account data...");
+      try {
+        // 1. Get foods library
+        const foodRes = await apiCall("getFoods");
+        state.foods = foodRes.foods || [];
+        
+        // 2. Get day-specific logs
+        await fetchDayData();
+
+        // 3. Get weight history
+        const weightRes = await apiCall("getWeightLogs");
+        state.weightLogs = weightRes.entries || [];
+
+        // Render everything
+        renderDailyDashboard();
+        renderFoodLibrary();
+        renderWeightHistory();
+        if (state.currentView === "weight") initWeightChart();
+      } catch (e) {
+        console.error("Reload Failed", e);
+      } finally {
+        if (showSpinner) hideLoader();
+      }
+    }
+
+    async function fetchDayData() {
+      try {
+        const logRes = await apiCall("getLogs", { date: state.currentDate });
+        state.logs = logRes.entries || [];
+
+        const waterRes = await apiCall("getWaterLogs", { date: state.currentDate });
+        state.waterLogs = waterRes.entries || [];
+        
+        renderDailyDashboard();
+      } catch (e) {
+        console.error("Fetch Day Data failed", e);
+      }
+    }
+
+    // --- RENDER 1: DAILY DASHBOARD ---
+    function renderDailyDashboard() {
+      // Calorie calculations
+      let totalCal = 0;
+      let totalP = 0;
+      let totalC = 0;
+      let totalF = 0;
+      let totalFib = 0;
+
+      state.logs.forEach(item => {
+        totalCal += item.calories || 0;
+        totalP += item.protein || 0;
+        totalC += item.carbs || 0;
+        totalF += item.fat || 0;
+        totalFib += item.fiber || 0;
+      });
+
+      totalCal = Math.round(totalCal);
+      totalP = Math.round(totalP * 10) / 10;
+      totalC = Math.round(totalC * 10) / 10;
+      totalF = Math.round(totalF * 10) / 10;
+      totalFib = Math.round(totalFib * 10) / 10;
+
+      const remainingCal = Math.max(0, GOALS.calories - totalCal);
+      const progressPercent = Math.min(100, Math.round((totalCal / GOALS.calories) * 100));
+
+      // Render Calories Widget
+      document.getElementById("calRemaining").innerText = remainingCal;
+      document.getElementById("calConsumedText").innerText = totalCal + " kcal";
+      document.getElementById("calProgressPercent").innerText = progressPercent + "%";
+      
+      // Render Ring progress (stroke-dasharray formula: Circumference = 100)
+      const ring = document.getElementById("calProgressRing");
+      ring.setAttribute("stroke-dasharray", `${progressPercent}, 100`);
+      if (totalCal > GOALS.calories) {
+        ring.className = "text-rose-400 transition-all duration-500";
+        document.getElementById("calRemaining").className = "text-rose-400";
+      } else {
+        ring.className = "text-brand-400 transition-all duration-500";
+        document.getElementById("calRemaining").className = "text-brand-400";
+      }
+
+      // Render Macro Bars
+      const renderMacroBar = (idPrefix, consumed, goal) => {
+        document.getElementById(`${idPrefix}Consumed`).innerText = consumed;
+        const pct = Math.min(100, Math.round((consumed / goal) * 100));
+        document.getElementById(`${idPrefix}ProgressBar`).style.width = `${pct}%`;
+      };
+      renderMacroBar("p", totalP, GOALS.protein);
+      renderMacroBar("c", totalC, GOALS.carbs);
+      renderMacroBar("f", totalF, GOALS.fat);
+      renderMacroBar("fib", totalFib, GOALS.fiber);
+
+      // Render Water Widget
+      let totalWaterMl = 0;
+      state.waterLogs.forEach(w => totalWaterMl += w.amountMl || 0);
+      const totalWaterL = (totalWaterMl / 1000).toFixed(2);
+      document.getElementById("waterConsumed").innerText = totalWaterL;
+      const waterWidgetIcon = document.getElementById("waterIcon");
+      if (totalWaterMl >= GOALS.water) {
+        waterWidgetIcon.className = "w-8 h-8 bg-emerald-500/10 text-emerald-400 flex items-center justify-center rounded-lg";
+      } else {
+        waterWidgetIcon.className = "w-8 h-8 bg-blue-500/10 text-blue-400 flex items-center justify-center rounded-lg";
+      }
+
+      // Render Weight Widget
+      const todayWeightLog = state.weightLogs.find(w => w.date === state.currentDate);
+      if (todayWeightLog) {
+        document.getElementById("todayWeight").innerText = todayWeightLog.weightKg.toFixed(1);
+        document.getElementById("weightInput").value = todayWeightLog.weightKg;
+      } else {
+        document.getElementById("todayWeight").innerText = "--";
+        document.getElementById("weightInput").value = "";
+      }
+
+      // Render Meal List
+      document.getElementById("totalMealCal").innerText = `${totalCal} kcal logged`;
+      const list = document.getElementById("mealsList");
+      
+      if (state.logs.length === 0) {
+        list.innerHTML = `<div class="text-center py-10 border border-dashed border-zinc-800 rounded-2xl text-zinc-500 text-sm">No meals logged for today. Press "+" to log one!</div>`;
+        return;
+      }
+
+      // Group logs by mealId
+      const meals = {};
+      state.logs.forEach(log => {
+        if (!meals[log.mealId]) {
+          meals[log.mealId] = {
+            mealId: log.mealId,
+            mealName: log.mealName,
+            time: log.time,
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fat: 0,
+            fiber: 0,
+            items: []
+          };
+        }
+        meals[log.mealId].calories += log.calories;
+        meals[log.mealId].protein += log.protein;
+        meals[log.mealId].carbs += log.carbs;
+        meals[log.mealId].fat += log.fat;
+        meals[log.mealId].fiber += log.fiber;
+        meals[log.mealId].items.push(log);
+      });
+
+      // Ingest HTML
+      list.innerHTML = Object.values(meals).map(meal => {
+        const formattedTime = new Date(meal.time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl p-4 space-y-3 relative">
+            <!-- Header -->
+            <div class="flex justify-between items-start">
+              <div class="space-y-0.5">
+                <h4 class="font-bold text-sm text-zinc-100">${meal.mealName}</h4>
+                <span class="text-[10px] text-zinc-500 font-semibold">${formattedTime}</span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <span class="text-xs font-bold text-brand-400">${Math.round(meal.calories)} kcal</span>
+                <button onclick="deleteMealLog('${meal.mealId}')" class="p-1 hover:bg-zinc-800 text-zinc-500 hover:text-rose-400 rounded transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Items list -->
+            <div class="border-t border-zinc-800/50 pt-2.5 space-y-2 text-xs text-zinc-400">
+              ${meal.items.map(item => `
+                <div class="flex justify-between">
+                  <span>${item.foodName} <span class="text-zinc-500">x ${item.qty} serving(s)</span></span>
+                  <span class="font-medium text-zinc-300">${Math.round(item.calories)} kcal</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Macros summary -->
+            <div class="border-t border-zinc-800/30 pt-2 flex space-x-4 text-[10px] text-zinc-500 font-semibold">
+              <span>P: ${Math.round(meal.protein)}g</span>
+              <span>C: ${Math.round(meal.carbs)}g</span>
+              <span>F: ${Math.round(meal.fat)}g</span>
+              <span>Fb: ${Math.round(meal.fiber)}g</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- LOG MEAL MODULE ---
+    function openLogMealModal() {
+      state.basket = [];
+      state.selectedSearchFoodId = null;
+      document.getElementById("mealFoodSearch").value = "";
+      document.getElementById("mealFoodQty").value = "1";
+      document.getElementById("selectedFoodText").classList.add("hidden");
+      document.getElementById("foodSearchResults").classList.add("hidden");
+      renderBasketList();
+      
+      // Trigger default select
+      document.getElementById("mealNameSelect").value = "Breakfast";
+      document.getElementById("logMealModal").classList.remove("hidden");
+    }
+
+    function closeLogMealModal() {
+      document.getElementById("logMealModal").classList.add("hidden");
+    }
+
+    function filterSearchFood() {
+      const q = document.getElementById("mealFoodSearch").value.trim().toLowerCase();
+      const box = document.getElementById("foodSearchResults");
+      if (!q) {
+        box.classList.add("hidden");
+        return;
+      }
+      const matches = state.foods.filter(f => f.name.toLowerCase().includes(q));
+      if (matches.length === 0) {
+        box.innerHTML = `<div class="px-3 py-2 text-zinc-500">No foods found. Add it to the Library first!</div>`;
+      } else {
+        box.innerHTML = matches.map(f => `
+          <div onclick="selectSearchFood('${f.id}')" class="px-3 py-2 hover:bg-zinc-800 cursor-pointer flex justify-between">
+            <span class="font-semibold">${f.name}</span>
+            <span class="text-zinc-500">${f.calories} kcal / ${f.servingSize}${f.servingUnit}</span>
+          </div>
+        `).join('');
+      }
+      box.classList.remove("hidden");
+    }
+
+    function selectSearchFood(id) {
+      const food = state.foods.find(f => f.id === id);
+      if (!food) return;
+      state.selectedSearchFoodId = id;
+      document.getElementById("selFoodName").innerText = food.name;
+      document.getElementById("servingUnitLabel").innerText = food.servingUnit;
+      document.getElementById("selectedFoodText").classList.remove("hidden");
+      document.getElementById("foodSearchResults").classList.add("hidden");
+      document.getElementById("mealFoodSearch").value = food.name;
+    }
+
+    function addItemToBasket() {
+      if (!state.selectedSearchFoodId) return alert("Please search and select a food from the library first!");
+      const food = state.foods.find(f => f.id === state.selectedSearchFoodId);
+      if (!food) return;
+      const qty = parseFloat(document.getElementById("mealFoodQty").value) || 0;
+      if (qty <= 0) return alert("Please enter a positive serving quantity!");
+
+      // Add to basket
+      state.basket.push({
+        foodId: food.id,
+        foodName: food.name,
+        qty: qty,
+        calories: Math.round(food.calories * qty)
+      });
+
+      // Reset inputs
+      state.selectedSearchFoodId = null;
+      document.getElementById("mealFoodSearch").value = "";
+      document.getElementById("mealFoodQty").value = "1";
+      document.getElementById("selectedFoodText").classList.add("hidden");
+      
+      renderBasketList();
+    }
+
+    function removeItemFromBasket(idx) {
+      state.basket.splice(idx, 1);
+      renderBasketList();
+    }
+
+    function renderBasketList() {
+      const list = document.getElementById("basketList");
+      const btnLog = document.getElementById("btnLogMeal");
+      
+      if (state.basket.length === 0) {
+        list.innerHTML = `<div class="text-center py-6 border border-dashed border-zinc-800 rounded-xl text-zinc-500 text-xs">Add items from above to construct this meal.</div>`;
+        document.getElementById("basketCalSum").innerText = "0";
+        btnLog.disabled = true;
+        return;
+      }
+
+      let totalCals = 0;
+      list.innerHTML = state.basket.map((item, idx) => {
+        totalCals += item.calories;
+        return `
+          <div class="bg-zinc-950/50 border border-zinc-800 rounded-xl px-3.5 py-2 flex justify-between items-center text-xs">
+            <div class="flex flex-col">
+              <span class="font-bold text-zinc-200">${item.foodName}</span>
+              <span class="text-[10px] text-zinc-500 font-semibold">Portion: ${item.qty} servings</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="font-bold text-zinc-300">${item.calories} kcal</span>
+              <button onclick="removeItemFromBasket(${idx})" class="p-1 text-zinc-500 hover:text-rose-400 rounded">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById("basketCalSum").innerText = totalCals;
+      btnLog.disabled = false;
+    }
+
+    async function submitMealLog() {
+      if (state.basket.length === 0) return;
+      const mealName = document.getElementById("mealNameSelect").value;
+      
+      showLoader("Saving your meal log...");
+      try {
+        const payload = {
+          mealName: mealName,
+          date: state.currentDate,
+          items: state.basket.map(item => ({ foodId: item.foodId, qty: item.qty }))
+        };
+        
+        await apiCall("addMealLog", {}, payload);
+        closeLogMealModal();
+        await fetchDayData();
+      } catch (e) {
+        console.error("Failed to log meal", e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    async function deleteMealLog(mealId) {
+      if (!confirm("Are you sure you want to delete this meal log?")) return;
+      showLoader("Deleting meal log...");
+      try {
+        await apiCall("deleteMealLog", { mealId: mealId });
+        await fetchDayData();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // --- WATER TRACKING API ---
+    async function logWater(amountMl) {
+      showLoader(`Logging +${amountMl}ml water...`);
+      try {
+        await apiCall("logWater", { amountMl: amountMl, date: state.currentDate });
+        await fetchDayData();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // --- WEIGHT TRACKING API ---
+    async function submitWeight() {
+      const val = parseFloat(document.getElementById("weightInput").value);
+      if (!val || val <= 0) return alert("Please enter a valid weight in kg!");
+      
+      showLoader("Logging weight...");
+      try {
+        await apiCall("logWeight", { weightKg: val, date: state.currentDate });
+        // Refresh all to update chart & history
+        await reloadAll(false);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // --- RENDER 2: FOOD LIBRARY ---
+    function renderFoodLibrary() {
+      const q = document.getElementById("foodLibrarySearch").value.trim().toLowerCase();
+      const list = document.getElementById("foodLibraryList");
+      const filtered = state.foods.filter(f => f.name.toLowerCase().includes(q));
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="text-center py-10 border border-dashed border-zinc-800 rounded-2xl text-zinc-500 text-sm">No foods found. Click "New Food" to create one!</div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(f => `
+        <div class="bg-zinc-900/50 border border-zinc-800/60 rounded-2xl p-4 flex justify-between items-center">
+          <div class="space-y-1.5 flex-1">
+            <div class="flex items-baseline space-x-2">
+              <h4 class="font-bold text-sm text-zinc-200">${f.name}</h4>
+              <span class="text-[10px] text-zinc-500 font-bold">${f.servingSize}${f.servingUnit}</span>
+            </div>
+            <div class="flex space-x-4 text-[10px] text-zinc-400">
+              <span class="font-semibold text-rose-400">${f.calories} kcal</span>
+              <span>P: ${f.protein}g</span>
+              <span>C: ${f.carbs}g</span>
+              <span>F: ${f.fat}g</span>
+              <span>Fb: ${f.fiber}g</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openFoodModal('${f.id}')" class="p-1.5 bg-zinc-800 hover:bg-zinc-700/50 text-zinc-400 hover:text-brand-400 rounded-lg border border-zinc-800 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            </button>
+            <button onclick="deleteFood('${f.id}')" class="p-1.5 bg-zinc-800 hover:bg-zinc-750 text-zinc-500 hover:text-rose-400 rounded-lg border border-zinc-800 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- FOOD CRUD MODAL ---
+    function openFoodModal(editId = null) {
+      const title = document.getElementById("foodModalTitle");
+      const editInput = document.getElementById("editFoodId");
+      
+      // Reset form
+      document.getElementById("foodName").value = "";
+      document.getElementById("foodServingSize").value = "";
+      document.getElementById("foodServingUnit").value = "";
+      document.getElementById("foodCalories").value = "";
+      document.getElementById("foodProtein").value = "";
+      document.getElementById("foodCarbs").value = "";
+      document.getElementById("foodFat").value = "";
+      document.getElementById("foodFiber").value = "";
+
+      if (editId) {
+        title.innerText = "Edit Food Item";
+        editInput.value = editId;
+        const food = state.foods.find(f => f.id === editId);
+        if (food) {
+          document.getElementById("foodName").value = food.name;
+          document.getElementById("foodServingSize").value = food.servingSize;
+          document.getElementById("foodServingUnit").value = food.servingUnit;
+          document.getElementById("foodCalories").value = food.calories;
+          document.getElementById("foodProtein").value = food.protein;
+          document.getElementById("foodCarbs").value = food.carbs;
+          document.getElementById("foodFat").value = food.fat;
+          document.getElementById("foodFiber").value = food.fiber;
+        }
+      } else {
+        title.innerText = "Add New Food";
+        editInput.value = "";
+      }
+
+      document.getElementById("foodModal").classList.remove("hidden");
+    }
+
+    function closeFoodModal() {
+      document.getElementById("foodModal").classList.add("hidden");
+    }
+
+    async function saveFood() {
+      const name = document.getElementById("foodName").value.trim();
+      const size = parseFloat(document.getElementById("foodServingSize").value) || 0;
+      const unit = document.getElementById("foodServingUnit").value.trim();
+      const cal = parseFloat(document.getElementById("foodCalories").value) || 0;
+      const prot = parseFloat(document.getElementById("foodProtein").value) || 0;
+      const carbs = parseFloat(document.getElementById("foodCarbs").value) || 0;
+      const fat = parseFloat(document.getElementById("foodFat").value) || 0;
+      const fib = parseFloat(document.getElementById("foodFiber").value) || 0;
+
+      if (!name || size <= 0 || !unit || cal < 0) {
+        return alert("Please fill all required fields with valid positive values (Name, Serving Size, Unit, Calories)!");
+      }
+
+      const payload = {
+        name: name,
+        servingSize: size,
+        servingUnit: unit,
+        calories: cal,
+        protein: prot,
+        carbs: carbs,
+        fat: fat,
+        fiber: fib
+      };
+
+      const editId = document.getElementById("editFoodId").value;
+      showLoader("Saving food item...");
+      try {
+        if (editId) {
+          payload.id = editId;
+          await apiCall("updateFood", {}, payload);
+        } else {
+          await apiCall("addFood", {}, payload);
+        }
+        closeFoodModal();
+        await reloadAll(false);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    async function deleteFood(id) {
+      if (!confirm("Are you sure you want to delete this food item from library? Logs utilizing this item will NOT be broken.")) return;
+      showLoader("Deleting food...");
+      try {
+        await apiCall("deleteFood", { id: id });
+        await reloadAll(false);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // --- RENDER 3: WEIGHT TRENDS ---
+    function renderWeightHistory() {
+      const list = document.getElementById("weightHistoryList");
+      if (state.weightLogs.length === 0) {
+        list.innerHTML = `<div class="text-center py-6 text-zinc-500 text-xs">No body weight logs recorded yet.</div>`;
+        return;
+      }
+
+      // Sort descending for history list
+      const sortedList = [...state.weightLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+      list.innerHTML = sortedList.map(w => {
+        const d = new Date(w.date);
+        const formatted = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        return `
+          <div class="bg-zinc-900/40 border border-zinc-850 rounded-xl px-4 py-2.5 flex justify-between items-center text-xs">
+            <span class="font-semibold text-zinc-400">${formatted}</span>
+            <span class="font-bold text-zinc-200">${w.weightKg.toFixed(1)} kg</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function initWeightChart() {
+      const canvas = document.getElementById("weightChart");
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (state.weightChart) {
+        state.weightChart.destroy();
+      }
+
+      if (state.weightLogs.length === 0) return;
+
+      // Take last 15 logs for chart readability
+      const chartData = state.weightLogs.slice(-15);
+      const labels = chartData.map(w => {
+        const d = new Date(w.date);
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      });
+      const weights = chartData.map(w => w.weightKg);
+
+      state.weightChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Weight (kg)',
+            data: weights,
+            borderColor: '#a78bfa',
+            backgroundColor: 'rgba(167, 139, 250, 0.05)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#a78bfa',
+            pointRadius: 3.5,
+            tension: 0.2,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#18181b',
+              titleColor: '#fafafa',
+              bodyColor: '#fafafa',
+              borderColor: '#27272a',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: '#1f1f23' },
+              ticks: { color: '#71717a', font: { size: 10 } }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#71717a', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // --- VIEW 4: SETTINGS ---
+    function showSettings() {
+      document.getElementById("settingsUrlInput").value = state.apiUrl;
+      navigate("settings");
+    }
+
+    function updateSettings() {
+      const url = document.getElementById("settingsUrlInput").value.trim();
+      if (!url || !url.startsWith("https://script.google.com/")) {
+        return alert("Please enter a valid Google Apps Script URL!");
+      }
+      localStorage.setItem("nutritrack_api_url", url);
+      state.apiUrl = url;
+      alert("Backend URL saved successfully!");
+      navigate("daily");
+      reloadAll(true);
+    }
+
+    // --- APP INITIALIZATION ---
+    function init() {
+      updateDateHeader();
+      
+      if (!state.apiUrl) {
+        showConnectScreen();
+      } else {
+        reloadAll(true);
+      }
+    }
+
+    // Start the app!
+    init();
+  </script>
 </body>
 </html>
