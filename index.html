@@ -650,20 +650,17 @@
       hideLoader();
     }
 
-    // --- STATE DATA LOADER ---
+    // --- STATE DATA LOADER (Bundled Single API Call) ---
     async function reloadAll(showSpinner = false) {
       if (showSpinner) showLoader("Loading account data...");
       try {
-        // 1. Get foods library
-        const foodRes = await apiCall("getFoods");
-        state.foods = foodRes.foods || [];
+        // Fetch all startup data in a single round-trip request!
+        const res = await apiCall("getAllData", { date: state.currentDate });
         
-        // 2. Get day-specific logs
-        await fetchDayData();
-
-        // 3. Get weight history
-        const weightRes = await apiCall("getWeightLogs");
-        state.weightLogs = weightRes.entries || [];
+        state.foods = res.foods || [];
+        state.logs = res.entries || [];
+        state.waterLogs = res.waterLogs || [];
+        state.weightLogs = res.weightLogs || [];
 
         // Render everything
         renderDailyDashboard();
@@ -681,12 +678,16 @@
       }
     }
 
+    // --- DATE SPECIFIC DATA LOADER (Parallel Fetch) ---
     async function fetchDayData() {
       try {
-        const logRes = await apiCall("getLogs", { date: state.currentDate });
+        // Fetch log entries and water logs in parallel to minimize date-switching latency!
+        const [logRes, waterRes] = await Promise.all([
+          apiCall("getLogs", { date: state.currentDate }),
+          apiCall("getWaterLogs", { date: state.currentDate })
+        ]);
+        
         state.logs = logRes.entries || [];
-
-        const waterRes = await apiCall("getWaterLogs", { date: state.currentDate });
         state.waterLogs = waterRes.entries || [];
         
         renderDailyDashboard();

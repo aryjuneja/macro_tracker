@@ -30,6 +30,26 @@ function handleRequest(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     
     switch (action) {
+      // --- BUNDLED STARTUP DATA ---
+      case "getAllData": {
+        const date = e.parameter.date;
+        if (!date) return { success: false, error: "Date required" };
+        
+        const foods = getSheetData("Foods");
+        const logs = getSheetData("Logs").filter(row => row.date === date);
+        const waterLogs = getSheetData("WaterLogs").filter(row => row.date === date);
+        const weightLogs = getSheetData("WeightLogs");
+        weightLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        return { 
+          success: true, 
+          foods: foods, 
+          entries: logs, 
+          waterLogs: waterLogs, 
+          weightLogs: weightLogs 
+        };
+      }
+
       // --- FOOD LIBRARY ---
       case "getFoods": {
         const data = getSheetData("Foods");
