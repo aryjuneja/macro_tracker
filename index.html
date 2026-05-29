@@ -327,8 +327,12 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
       <span class="text-[10px] font-medium">Library</span>
     </button>
-    <!-- Spacing for Floating FAB -->
-    <div class="w-10"></div>
+    <!-- Integrated Floating FAB Centered in Footer -->
+    <div class="relative w-12 h-12 flex items-center justify-center -mt-6 z-40">
+      <button onclick="openLogMealModal()" class="absolute bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 border-4 border-zinc-950 hover:scale-105 transition-all focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+      </button>
+    </div>
     <button onclick="navigate('weight')" id="nav_weight" class="flex flex-col items-center text-zinc-500 space-y-1 focus:outline-none">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
       <span class="text-[10px] font-medium">Weight</span>
@@ -338,11 +342,6 @@
       <span class="text-[10px] font-medium">Settings</span>
     </button>
   </footer>
-
-  <!-- Floating FAB for Logging Meals (Centered, overlaps Footer) -->
-  <button onclick="openLogMealModal()" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-brand-500 hover:bg-brand-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 border-4 border-zinc-950 z-35 hover:scale-105 transition-all focus:outline-none">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-  </button>
 
   <!-- MODAL 1: LOG MEAL (MULTI-ITEM BUILDER) -->
   <div id="logMealModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex items-end justify-center hidden transition-all">
